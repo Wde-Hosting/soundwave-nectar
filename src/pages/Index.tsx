@@ -14,7 +14,7 @@ const Index = () => {
             backgroundImage: "url('https://images.unsplash.com/photo-1488590528505-98d2b5aba04b')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            backgroundBlend: "overlay"
+            backgroundBlendMode: "overlay"
           }}
         />
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
