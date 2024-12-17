@@ -1,39 +1,79 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Music, Headphones, User, Calendar, Heart, Phone, Mail, ArrowRight } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Search,
+  Music,
+  Headphones,
+  Calendar,
+  Phone,
+  Mail,
+  ArrowRight,
+  MapPin,
+  Star,
+  Play,
+  Instagram,
+  Facebook,
+  Twitter
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [bookingForm, setBookingForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    eventDate: "",
+    eventType: "",
+    message: "",
+  });
+  const { toast } = useToast();
+
+  const handleBookingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: "Booking Request Received",
+      description: "We'll get back to you within 24 hours!",
+    });
+    setBookingForm({
+      name: "",
+      email: "",
+      phone: "",
+      eventDate: "",
+      eventType: "",
+      message: "",
+    });
+  };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#1A1F2C] text-white">
       {/* Hero Section with Video Background */}
-      <div className="relative h-[90vh] flex items-center justify-center text-white overflow-hidden">
+      <div className="relative h-[90vh] flex items-center justify-center overflow-hidden">
         <video
           autoPlay
           loop
           muted
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: "brightness(0.6)" }}
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
         >
           <source src="https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1a9e7c02d&profile_id=164&oauth2_token_id=57447761" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto animate-fade-up">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6">
             Professional Sound Services
           </h1>
-          <p className="text-xl md:text-2xl mb-8">
+          <p className="text-xl md:text-2xl mb-8 text-gray-200">
             Bringing Quality Sound to Tzaneen & Limpopo Since 2022
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-primary hover:bg-primary/90">
               Request a Quote <ArrowRight className="ml-2" />
             </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20">
+            <Button size="lg" variant="outline" className="border-white/20 hover:bg-white/10">
               Explore Services
             </Button>
           </div>
@@ -41,14 +81,14 @@ const Index = () => {
       </div>
 
       {/* Quick Search Bar */}
-      <div className="bg-white shadow-lg py-6 px-4">
+      <div className="bg-[#221F26] shadow-lg py-6 px-4 border-t border-white/10">
         <div className="container mx-auto max-w-4xl">
           <div className="flex gap-4">
             <Input
               placeholder="Search for services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-grow"
+              className="flex-grow bg-[#2A2533] border-white/10"
             />
             <Button variant="default">
               <Search className="mr-2" /> Search
@@ -57,15 +97,15 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Services Section with Enhanced Cards */}
-      <div className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      {/* Services Section */}
+      <div className="py-20 bg-gradient-to-b from-[#1A1F2C] to-[#221F26]">
         <div className="container">
           <h2 className="text-4xl font-bold text-center mb-12">Our Services</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {services.map((service) => (
               <div
                 key={service.title}
-                className="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+                className="group bg-[#2A2533] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-white/10"
               >
                 <div className="relative h-64 overflow-hidden">
                   <img 
@@ -79,11 +119,11 @@ const Index = () => {
                 </div>
                 <div className="p-6">
                   <h3 className="text-2xl font-semibold mb-4">{service.title}</h3>
-                  <p className="text-gray-600 mb-6">{service.description}</p>
+                  <p className="text-gray-300 mb-6">{service.description}</p>
                   <Link to={service.link}>
                     <Button 
                       variant="outline" 
-                      className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
+                      className="w-full border-white/10 hover:bg-primary hover:text-white transition-colors"
                     >
                       Learn More
                     </Button>
@@ -95,36 +135,59 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Quick Contact Section */}
-      <div className="bg-primary text-white py-16">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-8">Ready to Create Your Perfect Sound?</h2>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Button 
-              variant="secondary" 
-              size="lg"
-              className="flex items-center gap-2"
-            >
-              <Phone className="h-5 w-5" /> Call Us Now
+      {/* Quick Booking Form */}
+      <div className="bg-[#2A2533] py-16 border-y border-white/10">
+        <div className="container max-w-4xl">
+          <h2 className="text-3xl font-bold text-center mb-8">Book Your Event</h2>
+          <form onSubmit={handleBookingSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Input
+                placeholder="Your Name"
+                value={bookingForm.name}
+                onChange={(e) => setBookingForm({...bookingForm, name: e.target.value})}
+                className="bg-[#1A1F2C] border-white/10"
+              />
+              <Input
+                type="email"
+                placeholder="Email Address"
+                value={bookingForm.email}
+                onChange={(e) => setBookingForm({...bookingForm, email: e.target.value})}
+                className="bg-[#1A1F2C] border-white/10"
+              />
+              <Input
+                type="tel"
+                placeholder="Phone Number"
+                value={bookingForm.phone}
+                onChange={(e) => setBookingForm({...bookingForm, phone: e.target.value})}
+                className="bg-[#1A1F2C] border-white/10"
+              />
+              <Input
+                type="date"
+                value={bookingForm.eventDate}
+                onChange={(e) => setBookingForm({...bookingForm, eventDate: e.target.value})}
+                className="bg-[#1A1F2C] border-white/10"
+              />
+            </div>
+            <Textarea
+              placeholder="Tell us about your event..."
+              value={bookingForm.message}
+              onChange={(e) => setBookingForm({...bookingForm, message: e.target.value})}
+              className="bg-[#1A1F2C] border-white/10"
+            />
+            <Button type="submit" className="w-full md:w-auto">
+              Submit Booking Request
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="border-white text-white hover:bg-white hover:text-primary flex items-center gap-2"
-            >
-              <Mail className="h-5 w-5" /> Send Message
-            </Button>
-          </div>
+          </form>
         </div>
       </div>
 
       {/* Testimonials Section */}
-      <div className="py-20 bg-gray-50">
+      <div className="py-20 bg-[#1A1F2C]">
         <div className="container">
           <h2 className="text-4xl font-bold text-center mb-12">What Our Clients Say</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-lg">
+              <div key={index} className="bg-[#2A2533] p-6 rounded-xl shadow-lg border border-white/10">
                 <div className="flex items-center gap-4 mb-4">
                   <img 
                     src={testimonial.avatar} 
@@ -133,12 +196,63 @@ const Index = () => {
                   />
                   <div>
                     <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-gray-500 text-sm">{testimonial.location}</p>
+                    <p className="text-gray-400 text-sm">{testimonial.location}</p>
                   </div>
                 </div>
-                <p className="text-gray-600">{testimonial.text}</p>
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  ))}
+                </div>
+                <p className="text-gray-300">{testimonial.text}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Contact Section */}
+      <div className="bg-[#2A2533] py-16 border-t border-white/10">
+        <div className="container">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-6">Get in Touch</h2>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Phone className="text-primary" />
+                  <p>081 543 6748</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Mail className="text-primary" />
+                  <p>soundmaster@gmail.com</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <MapPin className="text-primary" />
+                  <p>Tzaneen & Limpopo Area</p>
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <Facebook className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <Instagram className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <Twitter className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="relative h-[400px] rounded-xl overflow-hidden">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29335.329654779!2d30.1445!3d-23.8333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1ec5e75800000000%3A0x3c3c6e200000000!2sTzaneen%2C%20South%20Africa!5e0!3m2!1sen!2s!4v1620000000000!5m2!1sen!2s"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+              ></iframe>
+            </div>
           </div>
         </div>
       </div>
@@ -164,7 +278,7 @@ const services = [
   {
     title: "Wedding Sound Services",
     description: "Complete wedding sound solution from ceremony to reception. Creating the perfect atmosphere for your special day.",
-    icon: <Music className="h-12 w-12" />,
+    icon: <Calendar className="h-12 w-12" />,
     link: "/services#wedding",
     image: "https://images.unsplash.com/photo-1519741497674-611481863552"
   },
