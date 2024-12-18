@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Music, Headphones, User, Calendar, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
+import MusicPlayer from "@/components/MusicPlayer";
 
 const Index = () => {
   return (
@@ -134,6 +135,7 @@ const Index = () => {
           </Button>
         </div>
       </div>
+      <MusicPlayer />
     </div>
   );
 };
