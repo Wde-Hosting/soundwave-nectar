@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import FileUpload from "@/components/FileUpload";
-import BlogPostForm from "@/components/BlogPostForm";
+import AdminSongManager from "@/components/AdminSongManager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -29,10 +29,26 @@ const Admin = () => {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-      <div className="grid gap-8">
-        <FileUpload />
-        <BlogPostForm />
-      </div>
+      <Tabs defaultValue="songs">
+        <TabsList>
+          <TabsTrigger value="songs">Songs</TabsTrigger>
+          <TabsTrigger value="bookings">Bookings</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+        </TabsList>
+        <TabsContent value="songs" className="mt-6">
+          <AdminSongManager />
+        </TabsContent>
+        <TabsContent value="bookings">
+          <div className="text-center py-12 text-gray-500">
+            Booking management coming soon
+          </div>
+        </TabsContent>
+        <TabsContent value="users">
+          <div className="text-center py-12 text-gray-500">
+            User management coming soon
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

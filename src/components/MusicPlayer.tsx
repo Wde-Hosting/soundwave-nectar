@@ -1,12 +1,16 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Track {
+  id: string;
   title: string;
-  url: string;
+  artist: string;
+  url?: string;
 }
 
 const MusicPlayer = () => {
@@ -16,11 +20,18 @@ const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
-  const playlist: Track[] = [
-    { title: "Track 1", url: "/path/to/track1.mp3" },
-    { title: "Track 2", url: "/path/to/track2.mp3" },
-    // Add more tracks as needed
-  ];
+  const { data: tracks = [], isLoading } = useQuery({
+    queryKey: ['songs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('songs')
+        .select('*')
+        .limit(10);
+      
+      if (error) throw error;
+      return data as Track[];
+    },
+  });
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -47,25 +58,30 @@ const MusicPlayer = () => {
   };
 
   const playNext = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % playlist.length);
+    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
   };
 
   const playPrevious = () => {
-    setCurrentTrackIndex((prev) => (prev - 1 + playlist.length) % playlist.length);
+    setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
   };
+
+  if (isLoading) return null;
+
+  const currentTrack = tracks[currentTrackIndex];
 
   return (
     <Card className="fixed bottom-4 right-4 w-80 shadow-lg">
       <CardContent className="p-4">
         <audio
           ref={audioRef}
-          src={playlist[currentTrackIndex].url}
+          src={currentTrack?.url}
           onEnded={playNext}
           className="hidden"
         />
         <div className="flex flex-col gap-4">
           <div className="text-center">
-            <h3 className="font-semibold">{playlist[currentTrackIndex].title}</h3>
+            <h3 className="font-semibold">{currentTrack?.title}</h3>
+            <p className="text-sm text-gray-500">{currentTrack?.artist}</p>
           </div>
           <div className="flex justify-center items-center gap-2">
             <Button variant="ghost" size="icon" onClick={playPrevious}>

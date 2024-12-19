@@ -18,6 +18,12 @@ const Index = () => {
       setUser(user);
     };
     getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const values = [
