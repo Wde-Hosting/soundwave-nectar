@@ -146,18 +146,21 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          is_admin: boolean | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           id: string
+          is_admin?: boolean | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          is_admin?: boolean | null
           username?: string | null
         }
         Relationships: []
@@ -194,12 +197,62 @@ export type Database = {
           },
         ]
       }
+      songs: {
+        Row: {
+          album: string | null
+          artist: string
+          created_at: string
+          genre: string | null
+          id: string
+          is_karaoke: boolean | null
+          title: string
+          user_id: string | null
+          year: number | null
+        }
+        Insert: {
+          album?: string | null
+          artist: string
+          created_at?: string
+          genre?: string | null
+          id?: string
+          is_karaoke?: boolean | null
+          title: string
+          user_id?: string | null
+          year?: number | null
+        }
+        Update: {
+          album?: string | null
+          artist?: string
+          created_at?: string
+          genre?: string | null
+          id?: string
+          is_karaoke?: boolean | null
+          title?: string
+          user_id?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "songs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      set_admin_status: {
+        Args: {
+          user_id: string
+          is_admin: boolean
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
