@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Search, Music, Headphones, User, Calendar, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import MusicPlayer from "@/components/MusicPlayer";
+import BlogList from "@/components/BlogList";
+import EventGallery from "@/components/EventGallery";
 
 const Index = () => {
   return (
@@ -74,6 +76,9 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Event Gallery Section */}
+      <EventGallery />
+
       {/* About Section with Image */}
       <div className="py-20 bg-white">
         <div className="container">
@@ -135,6 +140,7 @@ const Index = () => {
           </Button>
         </div>
       </div>
+
       <MusicPlayer />
     </div>
   );
