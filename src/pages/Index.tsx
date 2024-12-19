@@ -5,8 +5,62 @@ import { Link } from "react-router-dom";
 import MusicPlayer from "@/components/MusicPlayer";
 import BlogList from "@/components/BlogList";
 import EventGallery from "@/components/EventGallery";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+const services = [
+  {
+    title: "Party Sound Services",
+    description: "Tailored playlists for any occasion with broad selection of music genres.",
+    icon: <Music className="h-12 w-12" />,
+    link: "/services#party",
+    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
+  },
+  {
+    title: "Karaoke Sound Services",
+    description: "Extensive karaoke track collection with high-quality wireless microphones.",
+    icon: <Headphones className="h-12 w-12" />,
+    link: "/services#karaoke",
+    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81"
+  },
+  {
+    title: "Wedding Sound Services",
+    description: "Complete music solution for ceremonies and receptions.",
+    icon: <Music className="h-12 w-12" />,
+    link: "/services#wedding",
+    image: "https://images.unsplash.com/photo-1519741497674-611481863552"
+  },
+];
+
+const values = [
+  {
+    title: "Professional & Reliable",
+    description: "Ensuring seamless events with dependable service.",
+    icon: <User className="h-6 w-6" />
+  },
+  {
+    title: "Quality Equipment",
+    description: "Using top-tier sound systems for unmatched audio clarity.",
+    icon: <Headphones className="h-6 w-6" />
+  },
+  {
+    title: "Customer Satisfaction",
+    description: "Tailoring every service to meet client needs.",
+    icon: <Heart className="h-6 w-6" />
+  }
+];
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -21,6 +75,11 @@ const Index = () => {
           }}
         />
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          {user && (
+            <div className="mb-4 text-xl">
+              Welcome back, {user.email}!
+            </div>
+          )}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
             Professional Sound Services
           </h1>
@@ -145,47 +204,5 @@ const Index = () => {
     </div>
   );
 };
-
-const services = [
-  {
-    title: "Party Sound Services",
-    description: "Tailored playlists for any occasion with broad selection of music genres.",
-    icon: <Music className="h-12 w-12" />,
-    link: "/services#party",
-    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
-  },
-  {
-    title: "Karaoke Sound Services",
-    description: "Extensive karaoke track collection with high-quality wireless microphones.",
-    icon: <Headphones className="h-12 w-12" />,
-    link: "/services#karaoke",
-    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81"
-  },
-  {
-    title: "Wedding Sound Services",
-    description: "Complete music solution for ceremonies and receptions.",
-    icon: <Music className="h-12 w-12" />,
-    link: "/services#wedding",
-    image: "https://images.unsplash.com/photo-1519741497674-611481863552"
-  },
-];
-
-const values = [
-  {
-    title: "Professional & Reliable",
-    description: "Ensuring seamless events with dependable service.",
-    icon: <User className="h-6 w-6" />
-  },
-  {
-    title: "Quality Equipment",
-    description: "Using top-tier sound systems for unmatched audio clarity.",
-    icon: <Headphones className="h-6 w-6" />
-  },
-  {
-    title: "Customer Satisfaction",
-    description: "Tailoring every service to meet client needs.",
-    icon: <Heart className="h-6 w-6" />
-  }
-];
 
 export default Index;
