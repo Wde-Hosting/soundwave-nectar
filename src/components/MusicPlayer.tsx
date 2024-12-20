@@ -66,31 +66,27 @@ const MusicPlayer = () => {
           className="hidden"
         />
         <div className="flex flex-col gap-4">
-          {!isLoading && (
-            <>
-              <TrackInfo track={currentTrack} />
-              
-              <TrackProgress
-                currentTime={currentTime}
-                duration={duration}
-                onTimeChange={handleTimeChange}
-              />
+          <TrackInfo track={currentTrack} />
+          
+          <TrackProgress
+            currentTime={currentTime}
+            duration={duration}
+            onTimeChange={handleTimeChange}
+          />
 
-              <PlaybackControls
-                isPlaying={isPlaying}
-                onPlayPause={togglePlay}
-                onNext={playNext}
-                onPrevious={playPrevious}
-              />
+          <PlaybackControls
+            isPlaying={isPlaying}
+            onPlayPause={togglePlay}
+            onNext={playNext}
+            onPrevious={playPrevious}
+          />
 
-              <VolumeControls
-                volume={volume}
-                isMuted={isMuted}
-                onVolumeChange={handleVolumeChange}
-                onMuteToggle={toggleMute}
-              />
-            </>
-          )}
+          <VolumeControls
+            volume={volume}
+            isMuted={isMuted}
+            onVolumeChange={handleVolumeChange}
+            onMuteToggle={toggleMute}
+          />
         </div>
       </CardContent>
     </Card>
