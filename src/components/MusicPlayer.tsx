@@ -57,8 +57,6 @@ const MusicPlayer = () => {
     setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
   };
 
-  if (isLoading) return null;
-
   return (
     <Card className="fixed bottom-4 right-4 w-96 shadow-lg">
       <CardContent className="p-4">
@@ -68,27 +66,31 @@ const MusicPlayer = () => {
           className="hidden"
         />
         <div className="flex flex-col gap-4">
-          <TrackInfo track={currentTrack} />
-          
-          <TrackProgress
-            currentTime={currentTime}
-            duration={duration}
-            onTimeChange={handleTimeChange}
-          />
+          {!isLoading && (
+            <>
+              <TrackInfo track={currentTrack} />
+              
+              <TrackProgress
+                currentTime={currentTime}
+                duration={duration}
+                onTimeChange={handleTimeChange}
+              />
 
-          <PlaybackControls
-            isPlaying={isPlaying}
-            onPlayPause={togglePlay}
-            onNext={playNext}
-            onPrevious={playPrevious}
-          />
+              <PlaybackControls
+                isPlaying={isPlaying}
+                onPlayPause={togglePlay}
+                onNext={playNext}
+                onPrevious={playPrevious}
+              />
 
-          <VolumeControls
-            volume={volume}
-            isMuted={isMuted}
-            onVolumeChange={handleVolumeChange}
-            onMuteToggle={toggleMute}
-          />
+              <VolumeControls
+                volume={volume}
+                isMuted={isMuted}
+                onVolumeChange={handleVolumeChange}
+                onMuteToggle={toggleMute}
+              />
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
