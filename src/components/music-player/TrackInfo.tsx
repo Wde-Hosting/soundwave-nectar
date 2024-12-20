@@ -9,12 +9,10 @@ interface TrackInfoProps {
 }
 
 const TrackInfo = ({ track }: TrackInfoProps) => {
-  if (!track) return null;
-
   return (
     <div className="text-center">
-      <h3 className="font-semibold">{track.title}</h3>
-      <p className="text-sm text-gray-500">{track.artist}</p>
+      <h3 className="font-semibold">{track?.title || 'No track selected'}</h3>
+      <p className="text-sm text-gray-500">{track?.artist || 'Unknown artist'}</p>
     </div>
   );
 };
