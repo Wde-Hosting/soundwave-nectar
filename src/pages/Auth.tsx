@@ -20,7 +20,7 @@ const AuthPage = () => {
           description: "Successfully signed in",
         });
       }
-      if (event === 'USER_DELETED' || event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT') {
         navigate("/auth");
       }
     });
@@ -32,6 +32,13 @@ const AuthPage = () => {
       setError(decodeURIComponent(errorMessage));
       // Clear the error from URL
       window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Show toast for URL errors
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: errorMessage,
+      });
     }
 
     return () => {
@@ -54,14 +61,6 @@ const AuthPage = () => {
           appearance={{ theme: ThemeSupa }}
           providers={["google"]}
           theme="light"
-          onError={(error) => {
-            setError(error.message);
-            toast({
-              variant: "destructive",
-              title: "Authentication Error",
-              description: error.message,
-            });
-          }}
         />
       </div>
     </div>
