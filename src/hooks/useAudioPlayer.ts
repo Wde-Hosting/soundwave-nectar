@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 interface UseAudioPlayerProps {
   url?: string;
@@ -13,7 +13,6 @@ export const useAudioPlayer = ({ url, onTrackEnd }: UseAudioPlayerProps) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -36,6 +35,11 @@ export const useAudioPlayer = ({ url, onTrackEnd }: UseAudioPlayerProps) => {
       audio.removeEventListener('ended', handleTrackEnd);
     };
   }, [onTrackEnd]);
+
+  useEffect(() => {
+    // Reset playing state when URL changes
+    setIsPlaying(false);
+  }, [url]);
 
   const togglePlay = () => {
     if (audioRef.current) {
