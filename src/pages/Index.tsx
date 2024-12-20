@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
-import EventGallery from "@/components/EventGallery";
 import SongList from "@/components/SongList";
 import MusicPlayer from "@/components/MusicPlayer";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,6 @@ const Index = () => {
       <HeroSection user={user} onSearch={setSearchQuery} />
       <ServicesSection />
       <SongList searchQuery={searchQuery} />
-      <EventGallery />
       
       {/* About Section with Image */}
       <div className="py-20 bg-white">
