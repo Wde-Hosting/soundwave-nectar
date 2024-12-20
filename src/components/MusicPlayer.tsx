@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import PlaybackControls from "./music-player/PlaybackControls";
+import VolumeControls from "./music-player/VolumeControls";
+import TrackProgress from "./music-player/TrackProgress";
+import TrackInfo from "./music-player/TrackInfo";
 
 interface Track {
   id: string;
@@ -101,12 +102,6 @@ const MusicPlayer = () => {
     setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
   };
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
   if (isLoading) return null;
 
   const currentTrack = tracks[currentTrackIndex];
@@ -121,59 +116,27 @@ const MusicPlayer = () => {
           className="hidden"
         />
         <div className="flex flex-col gap-4">
-          <div className="text-center">
-            <h3 className="font-semibold">{currentTrack?.title}</h3>
-            <p className="text-sm text-gray-500">{currentTrack?.artist}</p>
-          </div>
+          <TrackInfo track={currentTrack} />
           
-          <div className="space-y-2">
-            <Slider
-              value={[currentTime]}
-              min={0}
-              max={duration || 100}
-              step={1}
-              onValueChange={handleTimeChange}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
+          <TrackProgress
+            currentTime={currentTime}
+            duration={duration}
+            onTimeChange={handleTimeChange}
+          />
 
-          <div className="flex justify-center items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={playPrevious}>
-              <SkipBack className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={togglePlay}>
-              {isPlaying ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
-            <Button variant="ghost" size="icon" onClick={playNext}>
-              <SkipForward className="h-4 w-4" />
-            </Button>
-          </div>
+          <PlaybackControls
+            isPlaying={isPlaying}
+            onPlayPause={togglePlay}
+            onNext={playNext}
+            onPrevious={playPrevious}
+          />
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={toggleMute}>
-              {isMuted ? (
-                <VolumeX className="h-4 w-4" />
-              ) : (
-                <Volume2 className="h-4 w-4" />
-              )}
-            </Button>
-            <Slider
-              value={[isMuted ? 0 : volume]}
-              min={0}
-              max={1}
-              step={0.1}
-              onValueChange={handleVolumeChange}
-              className="w-24"
-            />
-          </div>
+          <VolumeControls
+            volume={volume}
+            isMuted={isMuted}
+            onVolumeChange={handleVolumeChange}
+            onMuteToggle={toggleMute}
+          />
         </div>
       </CardContent>
     </Card>
