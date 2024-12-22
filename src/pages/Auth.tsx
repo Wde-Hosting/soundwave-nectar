@@ -1,19 +1,20 @@
-import { Auth } from "@supabase/auth-ui-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { AuthChangeEvent } from "@supabase/supabase-js";
 
-const AuthPage = () => {
+const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
+      if (event === 'SIGNED_IN') {
         navigate("/");
         toast({
           title: "Welcome!",
@@ -25,9 +26,8 @@ const AuthPage = () => {
       }
     });
 
-    // Check for any error messages in URL
-    const params = new URLSearchParams(window.location.search);
-    const errorMessage = params.get('error_description');
+    // Check for error in URL parameters
+    const errorMessage = searchParams.get('error');
     if (errorMessage) {
       setError(decodeURIComponent(errorMessage));
       // Clear the error from URL
@@ -42,21 +42,19 @@ const AuthPage = () => {
     }
 
     return () => {
-      authListener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   return (
-    <div className="container max-w-md mx-auto py-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">Welcome to Soundmaster</h1>
-      <div className="bg-white p-8 rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
         {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
+          <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <Auth
+        <SupabaseAuth 
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={["google"]}
@@ -67,4 +65,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+export default Auth;
