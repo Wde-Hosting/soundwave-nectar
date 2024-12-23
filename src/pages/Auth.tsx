@@ -12,31 +12,26 @@ const Auth = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
         navigate("/");
         toast({
           title: "Welcome!",
-          description: "Successfully signed in",
+          description: `Successfully signed in as ${session.user.email}`,
         });
-      }
-      if (event === 'SIGNED_OUT') {
-        navigate("/auth");
       }
     });
 
-    // Check for error in URL parameters
     const errorMessage = searchParams.get('error');
     if (errorMessage) {
-      setError(decodeURIComponent(errorMessage));
-      // Clear the error from URL
+      const decodedError = decodeURIComponent(errorMessage);
+      setError(decodedError);
       window.history.replaceState({}, document.title, window.location.pathname);
       
-      // Show toast for URL errors
       toast({
         variant: "destructive",
         title: "Authentication Error",
-        description: errorMessage,
+        description: decodedError,
       });
     }
 
@@ -53,12 +48,27 @@ const Auth = () => {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <SupabaseAuth 
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          providers={["google"]}
-          theme="light"
-        />
+        <div className="bg-white p-8 rounded-lg shadow-md">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
+            Welcome to Soundmaster
+          </h2>
+          <SupabaseAuth 
+            supabaseClient={supabase}
+            appearance={{ 
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#2563eb',
+                    brandAccent: '#1d4ed8',
+                  },
+                },
+              },
+            }}
+            providers={["google"]}
+            theme="light"
+          />
+        </div>
       </div>
     </div>
   );
