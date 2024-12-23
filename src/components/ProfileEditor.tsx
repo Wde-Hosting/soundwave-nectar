@@ -1,113 +1,85 @@
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import FileUpload from "./FileUpload";
 
 interface Profile {
-  username: string;
+  id: string;
+  username: string | null;
   avatar_url: string | null;
 }
 
 const ProfileEditor = () => {
-  const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [username, setUsername] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) throw new Error("No user found");
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("username, avatar_url")
+        .select("*")
         .eq("id", user.id)
         .single();
 
       if (error) throw error;
-      setProfile(data);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
+      return data as Profile;
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
+  const updateProfileMutation = useMutation({
+    mutationFn: async (newUsername: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
       const { error } = await supabase
         .from("profiles")
-        .update({
-          username: profile?.username,
-          avatar_url: profile?.avatar_url,
-        })
+        .update({ username: newUsername })
         .eq("id", user.id);
 
       if (error) throw error;
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
-    } catch (error: any) {
+      navigate("/");
+    },
+    onError: (error) => {
       toast({
         title: "Error",
-        description: error.message,
+        description: "Failed to update profile: " + error.message,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateProfileMutation.mutate(username);
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}-${Math.random()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
-      setProfile(prev => ({ ...prev!, avatar_url: publicUrl }));
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  if (!profile) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -116,56 +88,36 @@ const ProfileEditor = () => {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Edit Profile</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={profile.username || ""}
-              onChange={(e) =>
-                setProfile((prev) => ({ ...prev!, username: e.target.value }))
-              }
-              required
-            />
-          </div>
+    <div className="container mx-auto py-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Profile</CardTitle>
+          <CardDescription>Update your profile information</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder={profile?.username || ""}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Profile Picture</Label>
+              <FileUpload />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="avatar">Profile Picture</Label>
-            <Input
-              id="avatar"
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-            />
-            {profile.avatar_url && (
-              <div className="mt-2">
-                <img
-                  src={profile.avatar_url}
-                  alt="Profile"
-                  className="w-20 h-20 rounded-full object-cover"
-                />
-              </div>
-            )}
-          </div>
-
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Changes"
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <Button type="submit" className="w-full">
+              Save Changes
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
