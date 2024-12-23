@@ -12,7 +12,7 @@ interface SongFormData {
   artist: string;
   album: string;
   genre: string;
-  year: string;
+  year: string; // Keep as string for input handling
   is_karaoke: boolean;
 }
 
@@ -32,7 +32,10 @@ const SongForm = () => {
 
   const addSongMutation = useMutation({
     mutationFn: async (song: Omit<SongFormData, "id">) => {
-      const { data, error } = await supabase.from("songs").insert([song]);
+      const { data, error } = await supabase.from("songs").insert({
+        ...song,
+        year: song.year ? parseInt(song.year) : null,
+      });
       if (error) throw error;
       return data;
     },
@@ -55,10 +58,7 @@ const SongForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addSongMutation.mutate({
-      ...newSong,
-      year: newSong.year ? parseInt(newSong.year) : undefined,
-    });
+    addSongMutation.mutate(newSong);
   };
 
   return (
