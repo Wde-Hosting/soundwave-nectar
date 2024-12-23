@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +11,7 @@ const Navbar = () => {
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
     { name: "Admin", path: "/admin" },
+    { name: "Profile", path: "/profile", icon: <User className="h-4 w-4" /> },
   ];
 
   return (
@@ -29,8 +30,9 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className="text-gray-700 hover:text-primary transition-colors duration-200"
+                className="text-gray-700 hover:text-primary transition-colors duration-200 flex items-center gap-2"
               >
+                {item.icon}
                 {item.name}
               </Link>
             ))}
@@ -56,9 +58,10 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className="block px-3 py-2 text-gray-700 hover:text-primary transition-colors duration-200"
+                className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-primary transition-colors duration-200"
                 onClick={() => setIsOpen(false)}
               >
+                {item.icon}
                 {item.name}
               </Link>
             ))}
