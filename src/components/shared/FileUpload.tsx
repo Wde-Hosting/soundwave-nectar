@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
+import { Upload } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { Upload, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import FilePreview from "./upload/FilePreview";
+import UploadProgress from "./upload/UploadProgress";
+import { validateFile, uploadFile } from "./upload/uploadUtils";
 
 interface FileUploadProps {
   onUploadComplete: (url: string) => void;
@@ -35,48 +36,13 @@ const FileUpload = ({
         return;
       }
 
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Error",
-          description: "Please upload an image file",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (!validateFile(file)) return;
 
       // Create preview
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
 
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${Math.random()}.${fileExt}`;
-
-      // Upload file
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Simulate progress since we can't track it directly
-      const simulateProgress = () => {
-        setProgress(prev => {
-          if (prev >= 90) return prev;
-          return prev + 10;
-        });
-      };
-      const progressInterval = setInterval(simulateProgress, 100);
-
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filePath);
-
-      // Complete the progress
-      clearInterval(progressInterval);
-      setProgress(100);
+      const publicUrl = await uploadFile(file, bucket, setProgress);
       
       onUploadComplete(publicUrl);
       
@@ -105,21 +71,10 @@ const FileUpload = ({
   return (
     <div className="space-y-4">
       {preview ? (
-        <div className="relative">
-          <img 
-            src={preview} 
-            alt="Preview" 
-            className="w-full h-48 object-cover rounded-lg"
-          />
-          <Button
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2"
-            onClick={handleRemove}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <FilePreview 
+          previewUrl={preview}
+          onRemove={handleRemove}
+        />
       ) : (
         <div className="space-y-4">
           <Input
@@ -130,7 +85,7 @@ const FileUpload = ({
             className="cursor-pointer"
           />
           {uploading && (
-            <Progress value={progress} className="w-full" />
+            <UploadProgress value={progress} />
           )}
           <Button disabled={uploading} className="w-full">
             <Upload className="mr-2 h-4 w-4" />
