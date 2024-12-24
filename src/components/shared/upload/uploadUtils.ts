@@ -23,7 +23,7 @@ export const uploadFile = async (
 
   // Simulate progress
   const progressInterval = setInterval(() => {
-    onProgress((prev: number) => prev >= 90 ? prev : prev + 10);
+    onProgress(Math.min(90, Math.random() * 100));
   }, 100);
 
   try {

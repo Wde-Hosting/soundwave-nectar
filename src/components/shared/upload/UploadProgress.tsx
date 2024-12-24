@@ -1,12 +1,12 @@
 import { Progress } from "@/components/ui/progress";
 
 interface UploadProgressProps {
-  progress: number;
+  value: number;
 }
 
-const UploadProgress = ({ progress }: UploadProgressProps) => {
+const UploadProgress = ({ value }: UploadProgressProps) => {
   return (
-    <Progress value={progress} className="w-full" />
+    <Progress value={value} className="w-full" />
   );
 };
 
