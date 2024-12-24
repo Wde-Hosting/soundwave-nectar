@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Music, Search } from "lucide-react";
 import { useState } from "react";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface Song {
   id: string;
@@ -23,7 +24,7 @@ const SongList = ({ searchQuery }: SongListProps) => {
   const [localSearch, setLocalSearch] = useState("");
   const finalSearchQuery = searchQuery || localSearch;
 
-  const { data: songs, isLoading } = useQuery({
+  const { data: songs, isLoading, error } = useQuery({
     queryKey: ['songs', finalSearchQuery],
     queryFn: async () => {
       let query = supabase
@@ -41,15 +42,23 @@ const SongList = ({ searchQuery }: SongListProps) => {
     },
   });
 
+  if (error) {
+    return (
+      <div className="py-12 bg-gray-50">
+        <div className="container text-center">
+          <Music className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Error loading songs</h3>
+          <p className="text-gray-600">{(error as Error).message}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="py-12 bg-gray-50">
         <div className="container">
-          <div className="animate-pulse space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-lg" />
-            ))}
-          </div>
+          <LoadingSpinner size="lg" />
         </div>
       </div>
     );
