@@ -23,12 +23,14 @@ const queryClient = new QueryClient({
       retry: 1,
       staleTime: 30000,
       refetchOnWindowFocus: false,
-      onError: (error: any) => {
-        toast({
-          title: "Error",
-          description: error.message || "An unexpected error occurred",
-          variant: "destructive",
-        });
+      meta: {
+        onError: (error: any) => {
+          toast({
+            title: "Error",
+            description: error.message || "An unexpected error occurred",
+            variant: "destructive",
+          });
+        },
       },
     },
   },
