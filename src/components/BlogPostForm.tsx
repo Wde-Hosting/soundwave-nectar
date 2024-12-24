@@ -4,38 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import FileUpload from "./shared/FileUpload";
+import { useQueryClient } from "@tanstack/react-query";
 
 const BlogPostForm = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      let imageUrl = null;
-
-      if (image) {
-        const fileExt = image.name.split('.').pop();
-        const filePath = `${Math.random()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('event-images')
-          .upload(filePath, image);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('event-images')
-          .getPublicUrl(filePath);
-
-        imageUrl = publicUrl;
-      }
-
       const { error } = await supabase
         .from('blog_posts')
         .insert({
@@ -51,9 +35,13 @@ const BlogPostForm = () => {
         description: "Blog post created successfully",
       });
 
+      // Reset form
       setTitle("");
       setContent("");
-      setImage(null);
+      setImageUrl("");
+      
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["blog-posts"] });
 
     } catch (error: any) {
       toast({
@@ -67,29 +55,35 @@ const BlogPostForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-2xl font-bold">Create Blog Post</h2>
-      <div className="space-y-2">
-        <Input
-          placeholder="Post title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <Textarea
-          placeholder="Post content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
-          className="min-h-[200px]"
-        />
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files?.[0] || null)}
-        />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Create Blog Post</h2>
+        
+        <div className="space-y-2">
+          <Input
+            placeholder="Post title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          
+          <Textarea
+            placeholder="Post content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+            className="min-h-[200px]"
+          />
+          
+          <FileUpload
+            onUploadComplete={setImageUrl}
+            bucket="event-images"
+            existingUrl={imageUrl}
+          />
+        </div>
       </div>
-      <Button type="submit" disabled={submitting}>
+
+      <Button type="submit" disabled={submitting} className="w-full">
         {submitting ? "Creating..." : "Create Post"}
       </Button>
     </form>
