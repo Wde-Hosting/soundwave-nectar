@@ -52,42 +52,38 @@ const FileUpload = ({
       const fileExt = file.name.split('.').pop();
       const filePath = `${Math.random()}.${fileExt}`;
 
-      // Set up upload options with progress tracking
-      const options = {
-        cacheControl: '3600',
-        upsert: false
-      };
+      // Upload file
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
 
-      // Handle progress manually
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const { error: uploadError } = await supabase.storage
-          .from(bucket)
-          .upload(filePath, file, options);
+      if (uploadError) {
+        throw uploadError;
+      }
 
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from(bucket)
-          .getPublicUrl(filePath);
-
-        onUploadComplete(publicUrl);
-        
-        toast({
-          title: "Success",
-          description: "File uploaded successfully",
+      // Simulate progress since we can't track it directly
+      const simulateProgress = () => {
+        setProgress(prev => {
+          if (prev >= 90) return prev;
+          return prev + 10;
         });
       };
+      const progressInterval = setInterval(simulateProgress, 100);
 
-      reader.onprogress = (event) => {
-        if (event.lengthComputable) {
-          setProgress((event.loaded / event.total) * 100);
-        }
-      };
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
 
-      reader.readAsArrayBuffer(file);
+      // Complete the progress
+      clearInterval(progressInterval);
+      setProgress(100);
+      
+      onUploadComplete(publicUrl);
+      
+      toast({
+        title: "Success",
+        description: "File uploaded successfully",
+      });
 
     } catch (error: any) {
       toast({
