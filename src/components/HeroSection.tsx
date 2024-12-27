@@ -22,14 +22,14 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
   };
 
   return (
-    <div className="relative min-h-[90vh] bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white">
+    <div className="relative min-h-[90vh] flex items-center justify-center text-white">
       <div 
-        className="absolute inset-0 opacity-50"
+        className="absolute inset-0 bg-black/40"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundBlendMode: "overlay"
+          backgroundBlendMode: "multiply"
         }}
       />
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
