@@ -6,6 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
+import type { Booking } from "@/types/booking";
+
+const timeSlots = ["10:00 AM", "2:00 PM", "4:00 PM", "6:00 PM"];
 
 const CalendarSection = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -21,7 +24,7 @@ const CalendarSection = () => {
         .eq('event_date', format(date, 'yyyy-MM-dd'));
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as Booking[];
     },
   });
 
@@ -38,8 +41,6 @@ const CalendarSection = () => {
   const isTimeSlotBooked = (time: string) => {
     return bookings?.some(booking => booking.time === time) || false;
   };
-
-  const timeSlots = ["10:00 AM", "2:00 PM", "4:00 PM", "6:00 PM"];
 
   return (
     <div className="py-20 bg-white">
