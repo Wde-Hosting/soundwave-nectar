@@ -6,6 +6,7 @@ import SongList from "@/components/SongList";
 import MusicPlayer from "@/components/MusicPlayer";
 import ValueProposition from "@/components/home/ValueProposition";
 import ContactCTA from "@/components/home/ContactCTA";
+import CalendarSection from "@/components/calendar/CalendarSection";
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -29,6 +30,7 @@ const Index = () => {
     <div className="min-h-screen">
       <HeroSection user={user} onSearch={setSearchQuery} />
       <ServicesSection />
+      <CalendarSection />
       <SongList searchQuery={searchQuery} />
       <ValueProposition />
       <ContactCTA />
