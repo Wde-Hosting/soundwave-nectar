@@ -21,7 +21,7 @@ const CalendarSection = () => {
         .eq('event_date', format(date, 'yyyy-MM-dd'));
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
@@ -34,6 +34,12 @@ const CalendarSection = () => {
       });
     }
   };
+
+  const isTimeSlotBooked = (time: string) => {
+    return bookings?.some(booking => booking.time === time) || false;
+  };
+
+  const timeSlots = ["10:00 AM", "2:00 PM", "4:00 PM", "6:00 PM"];
 
   return (
     <div className="py-20 bg-white">
@@ -57,12 +63,12 @@ const CalendarSection = () => {
                 <p>Loading available slots...</p>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
-                  {["10:00 AM", "2:00 PM", "4:00 PM", "6:00 PM"].map((time) => (
+                  {timeSlots.map((time) => (
                     <Button
                       key={time}
                       variant="outline"
                       className="w-full"
-                      disabled={bookings?.some(b => b.time === time)}
+                      disabled={isTimeSlotBooked(time)}
                     >
                       {time}
                     </Button>
