@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
       staleTime: 30000,
       refetchOnWindowFocus: false,
       meta: {
-        onError: (error: any) => {
+        errorHandler: (error: any) => {
           toast({
             title: "Error",
             description: error.message || "An unexpected error occurred",
