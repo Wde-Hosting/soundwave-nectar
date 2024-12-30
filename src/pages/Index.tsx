@@ -8,6 +8,9 @@ import ValueProposition from "@/components/home/ValueProposition";
 import ContactCTA from "@/components/home/ContactCTA";
 import CalendarSection from "@/components/calendar/CalendarSection";
 import { User } from "@/types/user";
+import TestimonialSection from "@/components/home/TestimonialSection";
+import StatsSection from "@/components/home/StatsSection";
+import FeaturedEvents from "@/components/home/FeaturedEvents";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -30,9 +33,12 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <HeroSection user={user} onSearch={setSearchQuery} />
+      <StatsSection />
       <ServicesSection />
+      <FeaturedEvents />
       <CalendarSection />
       <SongList searchQuery={searchQuery} />
+      <TestimonialSection />
       <ValueProposition />
       <ContactCTA />
       <MusicPlayer />
