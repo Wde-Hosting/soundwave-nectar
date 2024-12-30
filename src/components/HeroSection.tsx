@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { User } from "@/types/user";
 
 interface HeroSectionProps {
-  user: any;
+  user: User | null;
   onSearch: (query: string) => void;
 }
 

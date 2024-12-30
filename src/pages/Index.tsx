@@ -7,9 +7,10 @@ import MusicPlayer from "@/components/MusicPlayer";
 import ValueProposition from "@/components/home/ValueProposition";
 import ContactCTA from "@/components/home/ContactCTA";
 import CalendarSection from "@/components/calendar/CalendarSection";
+import { User } from "@/types/user";
 
 const Index = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
