@@ -71,7 +71,7 @@ const Admin = () => {
 
   const handleIframeUpdate = async () => {
     try {
-      const settingsData: Tables<'settings'> = {
+      const settingsData: Tables<"settings", never> = {
         key: 'live_lesson_url',
         value: iframeUrl,
         created_at: new Date().toISOString(),
