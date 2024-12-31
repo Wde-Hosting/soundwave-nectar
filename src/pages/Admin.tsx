@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Music, Users, Calendar, Image, Settings } from "lucide-react";
+import type { Tables } from "@/integrations/supabase/types";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -46,6 +47,17 @@ const Admin = () => {
           });
           navigate("/");
         }
+
+        // Fetch current iframe URL
+        const { data: settings } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'live_lesson_url')
+          .single();
+        
+        if (settings?.value) {
+          setIframeUrl(settings.value);
+        }
       } catch (error) {
         console.error('Error checking admin status:', error);
         navigate("/");
@@ -59,9 +71,16 @@ const Admin = () => {
 
   const handleIframeUpdate = async () => {
     try {
+      const settingsData: Tables<'settings'> = {
+        key: 'live_lesson_url',
+        value: iframeUrl,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
       const { error } = await supabase
         .from('settings')
-        .upsert({ key: 'live_lesson_url', value: iframeUrl });
+        .upsert(settingsData);
 
       if (error) throw error;
 
@@ -70,6 +89,7 @@ const Admin = () => {
         description: "Live lesson URL updated successfully",
       });
     } catch (error) {
+      console.error('Error updating iframe URL:', error);
       toast({
         title: "Error",
         description: "Failed to update live lesson URL",
