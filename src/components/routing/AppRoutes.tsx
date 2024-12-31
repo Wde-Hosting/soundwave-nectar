@@ -5,6 +5,7 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Admin from "@/pages/Admin";
 import Auth from "@/pages/Auth";
+import LiveLesson from "@/pages/LiveLesson";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ProfileEditor from "@/components/ProfileEditor";
 
@@ -15,6 +16,7 @@ const AppRoutes = () => {
       <Route path="/services" element={<Services />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/live-lesson" element={<LiveLesson />} />
       <Route 
         path="/admin" 
         element={
