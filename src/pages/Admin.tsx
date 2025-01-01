@@ -5,11 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import AdminSongManager from "@/components/AdminSongManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Loader2, Music, Users, Calendar, Image, Settings } from "lucide-react";
-import type { Tables } from "@/integrations/supabase/types";
+import AdminHeader from "@/components/admin/AdminHeader";
+import LiveLessonSettings from "@/components/admin/LiveLessonSettings";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -46,6 +44,7 @@ const Admin = () => {
             variant: "destructive",
           });
           navigate("/");
+          return;
         }
 
         // Fetch current iframe URL
@@ -69,35 +68,6 @@ const Admin = () => {
     checkAdmin();
   }, [navigate, toast]);
 
-  const handleIframeUpdate = async () => {
-    try {
-      const settingsData: Tables<"settings", never> = {
-        key: 'live_lesson_url',
-        value: iframeUrl,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      const { error } = await supabase
-        .from('settings')
-        .upsert(settingsData);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Live lesson URL updated successfully",
-      });
-    } catch (error) {
-      console.error('Error updating iframe URL:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update live lesson URL",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -108,17 +78,7 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-3xl">Admin Dashboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600">
-            Welcome to your admin dashboard. Here you can manage your website's content,
-            users, and settings.
-          </p>
-        </CardContent>
-      </Card>
+      <AdminHeader />
 
       <Tabs defaultValue="content" className="space-y-4">
         <TabsList className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -156,25 +116,7 @@ const Admin = () => {
         </TabsContent>
 
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Website Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="iframe-url">Live Lesson iFrame URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="iframe-url"
-                    value={iframeUrl}
-                    onChange={(e) => setIframeUrl(e.target.value)}
-                    placeholder="Enter your streaming URL"
-                  />
-                  <Button onClick={handleIframeUpdate}>Save</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <LiveLessonSettings initialUrl={iframeUrl} />
         </TabsContent>
 
         <TabsContent value="users">
