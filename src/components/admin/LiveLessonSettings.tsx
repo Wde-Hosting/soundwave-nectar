@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Database } from "@/integrations/supabase/types";
+
+type Settings = Database['public']['Tables']['settings']['Insert'];
 
 const LiveLessonSettings = ({ initialUrl = "" }) => {
   const { toast } = useToast();
@@ -13,7 +15,7 @@ const LiveLessonSettings = ({ initialUrl = "" }) => {
 
   const handleIframeUpdate = async () => {
     try {
-      const settingsData: Tables<"settings", "Insert"> = {
+      const settingsData: Settings = {
         key: 'live_lesson_url',
         value: iframeUrl,
         created_at: new Date().toISOString(),
