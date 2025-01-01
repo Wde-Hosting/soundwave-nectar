@@ -9,7 +9,11 @@ import type { Database } from "@/integrations/supabase/types";
 
 type Settings = Database['public']['Tables']['settings']['Insert'];
 
-const LiveLessonSettings = ({ initialUrl = "" }) => {
+interface LiveLessonSettingsProps {
+  initialUrl?: string;
+}
+
+const LiveLessonSettings = ({ initialUrl = "" }: LiveLessonSettingsProps) => {
   const { toast } = useToast();
   const [iframeUrl, setIframeUrl] = useState<string>(initialUrl);
 
@@ -25,7 +29,7 @@ const LiveLessonSettings = ({ initialUrl = "" }) => {
       const { error } = await supabase
         .from('settings')
         .upsert(settingsData, {
-          onConflict: 'key'
+          onConflict: 'key',
         });
 
       if (error) throw error;
