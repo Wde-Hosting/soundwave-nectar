@@ -11,7 +11,7 @@ type Settings = Database['public']['Tables']['settings']['Insert'];
 
 const LiveLessonSettings = ({ initialUrl = "" }) => {
   const { toast } = useToast();
-  const [iframeUrl, setIframeUrl] = useState(initialUrl);
+  const [iframeUrl, setIframeUrl] = useState<string>(initialUrl);
 
   const handleIframeUpdate = async () => {
     try {
@@ -24,7 +24,9 @@ const LiveLessonSettings = ({ initialUrl = "" }) => {
 
       const { error } = await supabase
         .from('settings')
-        .upsert(settingsData);
+        .upsert(settingsData, {
+          onConflict: 'key'
+        });
 
       if (error) throw error;
 
