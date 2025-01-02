@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface SongSearchProps {
   value: string;
@@ -7,6 +8,34 @@ interface SongSearchProps {
 }
 
 const SongSearch = ({ value, onChange }: SongSearchProps) => {
+  const { toast } = useToast();
+
+  const handleSearch = async (searchValue: string) => {
+    try {
+      const response = await fetch('YOUR_CLOUDFLARE_WORKER_URL', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ searchQuery: searchValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+
+      const data = await response.json();
+      onChange(searchValue);
+      
+    } catch (error) {
+      toast({
+        title: "Search Error",
+        description: "Failed to perform semantic search",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="relative w-full max-w-md">
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -14,7 +43,13 @@ const SongSearch = ({ value, onChange }: SongSearchProps) => {
         placeholder="Search by title, artist, or genre..."
         className="pl-10"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          const newValue = e.target.value;
+          onChange(newValue);
+          if (newValue.length >= 3) {
+            handleSearch(newValue);
+          }
+        }}
       />
     </div>
   );
