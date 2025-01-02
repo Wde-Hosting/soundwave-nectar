@@ -12,7 +12,7 @@ const SongSearch = ({ value, onChange }: SongSearchProps) => {
 
   const handleSearch = async (searchValue: string) => {
     try {
-      const response = await fetch('YOUR_CLOUDFLARE_WORKER_URL', {
+      const response = await fetch('https://soundmaster-semantic-search.your-subdomain.workers.dev', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

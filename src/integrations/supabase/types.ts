@@ -226,6 +226,7 @@ export type Database = {
           album: string | null
           artist: string
           created_at: string
+          fts: unknown | null
           genre: string | null
           id: string
           is_karaoke: boolean | null
@@ -237,6 +238,7 @@ export type Database = {
           album?: string | null
           artist: string
           created_at?: string
+          fts?: unknown | null
           genre?: string | null
           id?: string
           is_karaoke?: boolean | null
@@ -248,6 +250,7 @@ export type Database = {
           album?: string | null
           artist?: string
           created_at?: string
+          fts?: unknown | null
           genre?: string | null
           id?: string
           is_karaoke?: boolean | null
