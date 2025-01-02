@@ -12,7 +12,9 @@ const SongSearch = ({ value, onChange }: SongSearchProps) => {
 
   const handleSearch = async (searchValue: string) => {
     try {
-      const response = await fetch('https://workersupabasedatabase.wde-host.workers.dev', {
+      console.log('Initiating search with value:', searchValue);
+      
+      const response = await fetch('https://soundmaster-semantic-search.wde-host.workers.dev', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,16 +23,19 @@ const SongSearch = ({ value, onChange }: SongSearchProps) => {
       });
 
       if (!response.ok) {
-        throw new Error('Search failed');
+        throw new Error(`Search failed: ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Search results:', data);
+      
       onChange(searchValue);
       
     } catch (error) {
+      console.error('Search error:', error);
       toast({
         title: "Search Error",
-        description: "Failed to perform semantic search",
+        description: "Failed to perform semantic search. Please try again.",
         variant: "destructive",
       });
     }
