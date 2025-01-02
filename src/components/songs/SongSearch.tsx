@@ -12,7 +12,7 @@ const SongSearch = ({ value, onChange }: SongSearchProps) => {
 
   const handleSearch = async (searchValue: string) => {
     try {
-      const response = await fetch('https://soundmaster-semantic-search.your-subdomain.workers.dev', {
+      const response = await fetch('https://workersupabasedatabase.wde-host.workers.dev', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
