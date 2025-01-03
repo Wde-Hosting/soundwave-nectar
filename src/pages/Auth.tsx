@@ -23,15 +23,6 @@ const Auth = () => {
       if (event === 'USER_UPDATED') {
         setError(null);
       }
-      // Add handling for sign in error events
-      if (event === 'SIGNED_IN_ERROR') {
-        setError("Failed to sign in. Please check your credentials and try again.");
-        toast({
-          variant: "destructive",
-          title: "Sign In Error",
-          description: "Failed to sign in. Please check your credentials and try again.",
-        });
-      }
     });
 
     const errorMessage = searchParams.get('error');
