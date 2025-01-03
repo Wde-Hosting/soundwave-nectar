@@ -4,3 +4,8 @@ compatibility_date = "2024-01-01"
 
 [vars]
 SUPABASE_URL = "https://tclqqvbpdqefpjqbdfle.supabase.co"
+CLOUDFLARE_ACCOUNT_ID = "86e2b8822cebf8584cf942edb3103fae"
+
+# Add AI binding
+[[ai]]
+binding = "AI"

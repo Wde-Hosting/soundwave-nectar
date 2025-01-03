@@ -14,7 +14,7 @@ export default {
         const { searchQuery, type } = await request.json();
         
         if (type === 'chat') {
-          // Format the conversation for OpenAI
+          // Use Cloudflare AI model for chat
           const messages = [
             {
               role: "system",
@@ -28,23 +28,14 @@ export default {
             { role: "user", content: searchQuery }
           ];
 
-          // Call OpenAI API
-          const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              model: "gpt-4o-mini",
-              messages,
-              temperature: 0.7,
-              max_tokens: 500
-            })
+          // Call Cloudflare AI API using @cloudflare/ai
+          const ai = new Ai(env.CLOUDFLARE_AI);
+          const response = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
+            messages: messages,
+            stream: false
           });
 
-          const openAIData = await openAIResponse.json();
-          let aiResponse = openAIData.choices[0].message.content;
+          let aiResponse = response.response;
 
           // If the message seems to be about searching for songs, also search the database
           if (searchQuery.toLowerCase().includes('song') || searchQuery.toLowerCase().includes('music')) {
