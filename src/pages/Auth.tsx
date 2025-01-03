@@ -10,10 +10,12 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        setIsLoading(false);
         navigate("/");
         toast({
           title: "Welcome!",
@@ -22,6 +24,7 @@ const Auth = () => {
       }
       if (event === 'USER_UPDATED') {
         setError(null);
+        setIsLoading(false);
       }
     });
 
@@ -29,6 +32,7 @@ const Auth = () => {
     if (errorMessage) {
       const decodedError = decodeURIComponent(errorMessage);
       setError(decodedError);
+      setIsLoading(false);
       window.history.replaceState({}, document.title, window.location.pathname);
       
       toast({
@@ -43,6 +47,16 @@ const Auth = () => {
     };
   }, [navigate, searchParams]);
 
+  const handleAuthError = (error: Error) => {
+    setError(error.message);
+    setIsLoading(false);
+    toast({
+      variant: "destructive",
+      title: "Authentication Error",
+      description: error.message,
+    });
+  };
+
   // Get the current URL for proper redirect handling
   const siteUrl = window.location.origin;
 
@@ -50,7 +64,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {error && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -88,6 +102,7 @@ const Auth = () => {
             providers={["google"]}
             redirectTo={`${siteUrl}/auth/callback`}
             theme="light"
+            onError={handleAuthError}
             localization={{
               variables: {
                 sign_in: {
@@ -95,7 +110,7 @@ const Auth = () => {
                   password_input_placeholder: "Your password",
                   email_label: "Email",
                   password_label: "Password",
-                  button_label: "Sign in",
+                  button_label: isLoading ? "Signing in..." : "Sign in",
                   loading_button_label: "Signing in ...",
                   social_provider_text: "Sign in with {{provider}}",
                   link_text: "Already have an account? Sign in",
