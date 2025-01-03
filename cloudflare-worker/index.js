@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
+import { Ai } from '@cloudflare/ai';
 import { corsHeaders } from './cors';
 
 export default {
   async fetch(request, env) {
+    // Handle CORS preflight requests
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
     }
@@ -28,8 +30,8 @@ export default {
             { role: "user", content: searchQuery }
           ];
 
-          // Call Cloudflare AI API using @cloudflare/ai
-          const ai = new Ai(env.CLOUDFLARE_AI);
+          // Call Cloudflare AI API
+          const ai = new Ai(env.AI);
           const response = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
             messages: messages,
             stream: false
