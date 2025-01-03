@@ -47,16 +47,6 @@ const Auth = () => {
     };
   }, [navigate, searchParams]);
 
-  const handleAuthError = (error: Error) => {
-    setError(error.message);
-    setIsLoading(false);
-    toast({
-      variant: "destructive",
-      title: "Authentication Error",
-      description: error.message,
-    });
-  };
-
   // Get the current URL for proper redirect handling
   const siteUrl = window.location.origin;
 
@@ -102,7 +92,6 @@ const Auth = () => {
             providers={["google"]}
             redirectTo={`${siteUrl}/auth/callback`}
             theme="light"
-            onError={handleAuthError}
             localization={{
               variables: {
                 sign_in: {
