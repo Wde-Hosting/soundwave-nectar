@@ -3,20 +3,74 @@ import { corsHeaders } from './cors';
 
 export default {
   async fetch(request, env) {
-    // Handle CORS preflight requests
     if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        headers: corsHeaders,
-      });
+      return new Response(null, { headers: corsHeaders });
     }
 
     try {
       const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
       
       if (request.method === 'POST') {
-        const { searchQuery } = await request.json();
+        const { searchQuery, type } = await request.json();
         
-        // Perform semantic search on the songs table
+        if (type === 'chat') {
+          // Format the conversation for OpenAI
+          const messages = [
+            {
+              role: "system",
+              content: `You are a helpful music assistant for Soundmaster. You can help with:
+              - Finding songs in our database
+              - Making song requests
+              - Booking appointments
+              - Answering questions about our services
+              Always be friendly and professional. If you need to search for songs, use the database.`
+            },
+            { role: "user", content: searchQuery }
+          ];
+
+          // Call OpenAI API
+          const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: "gpt-4o-mini",
+              messages,
+              temperature: 0.7,
+              max_tokens: 500
+            })
+          });
+
+          const openAIData = await openAIResponse.json();
+          let aiResponse = openAIData.choices[0].message.content;
+
+          // If the message seems to be about searching for songs, also search the database
+          if (searchQuery.toLowerCase().includes('song') || searchQuery.toLowerCase().includes('music')) {
+            const { data: songs, error } = await supabase
+              .from('songs')
+              .select('*')
+              .textSearch('title', searchQuery, {
+                type: 'websearch',
+                config: 'english'
+              });
+
+            if (songs && songs.length > 0) {
+              aiResponse += "\n\nI found these songs in our database:\n" + 
+                songs.map(song => `- ${song.title} by ${song.artist}`).join('\n');
+            }
+          }
+
+          return new Response(JSON.stringify({ response: aiResponse }), {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          });
+        }
+
+        // Keep existing semantic search functionality
         const { data: songs, error } = await supabase
           .from('songs')
           .select('*')
@@ -40,7 +94,7 @@ export default {
         headers: corsHeaders,
       });
     } catch (error) {
-      console.error('Error in semantic search:', error);
+      console.error('Error:', error);
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
         headers: {

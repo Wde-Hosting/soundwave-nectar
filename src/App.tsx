@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AuthStateManager from "./components/auth/AuthStateManager";
 import AppRoutes from "./components/routing/AppRoutes";
+import ChatBot from "./components/ChatBot";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,7 @@ const App = () => {
               <main className="pt-16">
                 <AppRoutes />
               </main>
+              <ChatBot />
             </div>
           </BrowserRouter>
         </ErrorBoundary>
