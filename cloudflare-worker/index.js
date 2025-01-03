@@ -6,7 +6,9 @@ export default {
   async fetch(request, env) {
     // Handle CORS preflight requests
     if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
+      return new Response(null, {
+        headers: corsHeaders
+      });
     }
 
     try {
