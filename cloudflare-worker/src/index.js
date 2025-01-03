@@ -20,7 +20,6 @@ export default {
       
       if (request.method === 'POST') {
         const { searchQuery } = await request.json();
-        console.log('Received search query:', searchQuery);
         
         // Perform semantic search on the songs table
         const { data: songs, error } = await supabase
@@ -31,12 +30,7 @@ export default {
             config: 'english'
           });
 
-        if (error) {
-          console.error('Supabase error:', error);
-          throw error;
-        }
-
-        console.log('Search results:', songs);
+        if (error) throw error;
 
         return new Response(JSON.stringify({ songs }), {
           headers: {
@@ -51,7 +45,6 @@ export default {
         headers: corsHeaders,
       });
     } catch (error) {
-      console.error('Error in semantic search:', error);
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
         headers: {
