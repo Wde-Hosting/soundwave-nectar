@@ -27,24 +27,27 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
     {
       icon: <Music className="h-6 w-6" />,
       title: "Professional Sound",
-      description: "High-quality audio equipment"
+      description: "High-quality audio equipment",
+      image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745"
     },
     {
       icon: <Calendar className="h-6 w-6" />,
       title: "Event Planning",
-      description: "Comprehensive event support"
+      description: "Comprehensive event support",
+      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
     },
     {
       icon: <Users className="h-6 w-6" />,
       title: "Expert Team",
-      description: "Experienced professionals"
+      description: "Experienced professionals",
+      image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81"
     }
   ];
 
   return (
     <div className="relative min-h-[90vh] flex items-center justify-center text-white">
       <div 
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/60"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745')",
           backgroundSize: "cover",
@@ -87,18 +90,25 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {features.map((feature) => (
+          {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="bg-black/30 backdrop-blur-sm p-6 rounded-lg hover:bg-black/40 transition-colors"
+              className="group relative overflow-hidden rounded-lg aspect-square"
             >
-              <div className="flex justify-center mb-4">
-                <div className="p-3 rounded-full bg-primary/20">
-                  {feature.icon}
+              <img 
+                src={feature.image}
+                alt={feature.title}
+                className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors">
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+                  <div className="p-3 rounded-full bg-primary/20 mb-4">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-gray-300">{feature.description}</p>
                 </div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-300">{feature.description}</p>
             </div>
           ))}
         </div>
