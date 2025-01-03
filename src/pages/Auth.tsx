@@ -20,6 +20,9 @@ const Auth = () => {
           description: `Successfully signed in as ${session.user.email}`,
         });
       }
+      if (event === 'USER_UPDATED') {
+        setError(null);
+      }
     });
 
     const errorMessage = searchParams.get('error');
@@ -67,10 +70,32 @@ const Auth = () => {
                   },
                 },
               },
+              style: {
+                button: { 
+                  borderRadius: '0.375rem',
+                  height: '2.5rem',
+                },
+                anchor: { 
+                  color: '#2563eb',
+                  textDecoration: 'none',
+                },
+                message: {
+                  color: '#ef4444',
+                  marginBottom: '1rem',
+                },
+              },
             }}
             providers={["google"]}
             redirectTo={`${siteUrl}/auth/callback`}
             theme="light"
+            onError={(error) => {
+              setError(error.message);
+              toast({
+                variant: "destructive",
+                title: "Authentication Error",
+                description: error.message,
+              });
+            }}
           />
         </div>
       </div>
