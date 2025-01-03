@@ -47,7 +47,6 @@ const Auth = () => {
     };
   }, [navigate, searchParams]);
 
-  // Get the current URL for proper redirect handling
   const siteUrl = window.location.origin;
 
   return (
