@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 
 const ChatBot = () => {
@@ -10,7 +11,14 @@ const ChatBot = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<{type: 'user' | 'bot', content: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -72,31 +80,33 @@ const ChatBot = () => {
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+          <ScrollArea ref={scrollRef} className="flex-1 p-4">
+            <div className="space-y-4">
+              {messages.map((msg, index) => (
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    msg.type === 'user'
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 text-gray-900'
-                  }`}
+                  key={index}
+                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {msg.content}
+                  <div
+                    className={`max-w-[80%] p-3 rounded-lg ${
+                      msg.type === 'user'
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-900'
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollArea>
 
           <div className="p-4 border-t">
             <div className="flex gap-2">
               <Input
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
                 placeholder="Type your message..."
                 disabled={isLoading}
               />
