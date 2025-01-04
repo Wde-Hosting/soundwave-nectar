@@ -49,7 +49,7 @@ const SongList = ({ searchQuery }: SongListProps) => {
     return (
       <div className="py-12 bg-gray-50">
         <div className="container">
-          <LoadingSpinner size="lg" />
+          <LoadingSpinner className="w-8 h-8" />
         </div>
       </div>
     );

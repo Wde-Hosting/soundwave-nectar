@@ -28,12 +28,14 @@ const ChatBot = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
       
-      // Get the API key from Supabase
-      const { data: { secret: apiKey }, error: secretError } = await supabase.rpc('get_secret', {
-        name: 'OPENROUTER_API_KEY'
-      });
+      // Get the API key from Supabase settings
+      const { data, error: secretError } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'OPENROUTER_API_KEY')
+        .single();
 
-      if (secretError || !apiKey) {
+      if (secretError || !data?.value) {
         throw new Error('Failed to get API key');
       }
 
@@ -41,7 +43,7 @@ const ChatBot = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${data.value}`,
           'HTTP-Referer': window.location.origin,
         },
         body: JSON.stringify({
@@ -55,8 +57,8 @@ const ChatBot = () => {
 
       if (!response.ok) throw new Error('Failed to get response');
       
-      const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content || 'Sorry, I could not process your request.';
+      const responseData = await response.json();
+      const aiResponse = responseData.choices[0]?.message?.content || 'Sorry, I could not process your request.';
       
       setMessages(prev => [...prev, { type: 'bot', content: aiResponse }]);
       setMessage("");
