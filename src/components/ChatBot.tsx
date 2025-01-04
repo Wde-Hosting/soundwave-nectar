@@ -27,22 +27,28 @@ const ChatBot = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
       
-      const response = await fetch('https://workersupabasedatabase.wde-host.workers.dev', {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Origin': window.location.origin,
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY || ''}`,
+          'HTTP-Referer': window.location.origin,
         },
-        body: JSON.stringify({ 
-          searchQuery: message,
-          type: 'chat'
+        body: JSON.stringify({
+          model: 'mistralai/mistral-7b-instruct',
+          messages: [
+            { role: 'system', content: 'You are a helpful music teaching assistant.' },
+            { role: 'user', content: message }
+          ]
         }),
       });
 
       if (!response.ok) throw new Error('Failed to get response');
       
       const data = await response.json();
-      setMessages(prev => [...prev, { type: 'bot', content: data.response }]);
+      const aiResponse = data.choices[0]?.message?.content || 'Sorry, I could not process your request.';
+      
+      setMessages(prev => [...prev, { type: 'bot', content: aiResponse }]);
       setMessage("");
     } catch (error) {
       console.error('Chat error:', error);
