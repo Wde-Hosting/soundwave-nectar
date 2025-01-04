@@ -20,14 +20,23 @@ export const useChatBot = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
       
-      const { data, error: secretError } = await supabase
+      const { data, error } = await supabase
         .from('settings')
         .select('value')
         .eq('key', 'OPENROUTER_API_KEY')
-        .single();
+        .maybeSingle();
 
-      if (secretError || !data?.value) {
-        throw new Error('Failed to get API key');
+      if (error) {
+        throw new Error('Failed to fetch API key from settings');
+      }
+
+      if (!data?.value) {
+        toast({
+          title: "Configuration Error",
+          description: "OpenRouter API key is not configured. Please contact the administrator.",
+          variant: "destructive",
+        });
+        return;
       }
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -46,7 +55,9 @@ export const useChatBot = () => {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to get response');
+      if (!response.ok) {
+        throw new Error('Failed to get response from OpenRouter API');
+      }
       
       const responseData = await response.json();
       const aiResponse = responseData.choices[0]?.message?.content || 'Sorry, I could not process your request.';
@@ -57,7 +68,7 @@ export const useChatBot = () => {
       console.error('Chat error:', error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
         variant: "destructive",
       });
     } finally {
