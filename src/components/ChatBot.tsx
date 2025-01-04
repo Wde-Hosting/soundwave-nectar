@@ -1,78 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { MessageCircle, X } from "lucide-react";
+import ChatMessage from "./chat/ChatMessage";
+import ChatInput from "./chat/ChatInput";
+import { useChatBot } from "@/hooks/useChatBot";
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Array<{type: 'user' | 'bot', content: string}>>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const { message, messages, isLoading, setMessage, handleSendMessage } = useChatBot();
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
-
-  const handleSendMessage = async () => {
-    if (!message.trim()) return;
-
-    try {
-      setIsLoading(true);
-      setMessages(prev => [...prev, { type: 'user', content: message }]);
-      
-      // Get the API key from Supabase settings
-      const { data, error: secretError } = await supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'OPENROUTER_API_KEY')
-        .single();
-
-      if (secretError || !data?.value) {
-        throw new Error('Failed to get API key');
-      }
-
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${data.value}`,
-          'HTTP-Referer': window.location.origin,
-        },
-        body: JSON.stringify({
-          model: 'mistralai/mistral-7b-instruct',
-          messages: [
-            { role: 'system', content: 'You are a helpful music teaching assistant.' },
-            { role: 'user', content: message }
-          ]
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to get response');
-      
-      const responseData = await response.json();
-      const aiResponse = responseData.choices[0]?.message?.content || 'Sorry, I could not process your request.';
-      
-      setMessages(prev => [...prev, { type: 'bot', content: aiResponse }]);
-      setMessage("");
-    } catch (error) {
-      console.error('Chat error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <>
@@ -101,46 +45,21 @@ const ChatBot = () => {
           <ScrollArea ref={scrollRef} className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((msg, index) => (
-                <div
+                <ChatMessage
                   key={index}
-                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-lg ${
-                      msg.type === 'user'
-                        ? 'bg-primary text-white'
-                        : 'bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                </div>
+                  content={msg.content}
+                  type={msg.type}
+                />
               ))}
             </div>
           </ScrollArea>
 
-          <div className="p-4 border-t">
-            <div className="flex gap-2">
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
-                placeholder="Type your message..."
-                disabled={isLoading}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={isLoading}
-                className="px-3"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
+          <ChatInput
+            message={message}
+            isLoading={isLoading}
+            onMessageChange={setMessage}
+            onSendMessage={handleSendMessage}
+          />
         </Card>
       )}
     </>
