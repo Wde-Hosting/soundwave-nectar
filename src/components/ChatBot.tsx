@@ -5,6 +5,7 @@ import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,11 +28,20 @@ const ChatBot = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
       
+      // Get the API key from Supabase
+      const { data: { secret: apiKey }, error: secretError } = await supabase.rpc('get_secret', {
+        name: 'OPENROUTER_API_KEY'
+      });
+
+      if (secretError || !apiKey) {
+        throw new Error('Failed to get API key');
+      }
+
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY || ''}`,
+          'Authorization': `Bearer ${apiKey}`,
           'HTTP-Referer': window.location.origin,
         },
         body: JSON.stringify({
