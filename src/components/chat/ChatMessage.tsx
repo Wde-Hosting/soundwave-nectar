@@ -12,8 +12,8 @@ const ChatMessage = ({ content, type }: ChatMessageProps) => {
         className={cn(
           "max-w-[80%] p-3 rounded-lg",
           type === 'user'
-            ? 'bg-primary text-white'
-            : 'bg-gray-100 text-gray-900'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground dark:bg-gray-700'
         )}
       >
         {content}

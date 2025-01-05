@@ -21,8 +21,8 @@ const ChatBot = () => {
   return (
     <>
       {isOpen && (
-        <Card className="fixed bottom-20 right-4 w-80 md:w-96 h-[500px] shadow-xl flex flex-col">
-          <div className="p-4 border-b flex justify-between items-center bg-primary text-white rounded-t-lg">
+        <Card className="fixed bottom-20 right-4 w-80 md:w-96 h-[500px] shadow-xl flex flex-col dark:bg-gray-800">
+          <div className="p-4 border-b flex justify-between items-center bg-primary text-primary-foreground rounded-t-lg">
             <h3 className="font-semibold">Soundmaster Assistant</h3>
             <Button
               variant="ghost"

@@ -11,7 +11,7 @@ interface ChatInputProps {
 
 const ChatInput = ({ message, isLoading, onMessageChange, onSendMessage }: ChatInputProps) => {
   return (
-    <div className="p-4 border-t">
+    <div className="p-4 border-t dark:border-gray-700">
       <div className="flex gap-2">
         <Input
           value={message}
@@ -19,6 +19,7 @@ const ChatInput = ({ message, isLoading, onMessageChange, onSendMessage }: ChatI
           onKeyPress={(e) => e.key === 'Enter' && !isLoading && onSendMessage()}
           placeholder="Type your message..."
           disabled={isLoading}
+          className="dark:bg-gray-700"
         />
         <Button
           onClick={onSendMessage}

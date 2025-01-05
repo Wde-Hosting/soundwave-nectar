@@ -25,7 +25,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "theme",
+  storageKey = "ui-theme",
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
@@ -61,9 +61,9 @@ export function ThemeProvider({
     <ThemeProviderContext.Provider {...props} value={value}>
       {children}
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
-        className="fixed top-4 right-4 z-50"
+        className="fixed top-4 right-4 z-50 rounded-full"
         onClick={() => value.setTheme(theme === "dark" ? "light" : "dark")}
       >
         {theme === "dark" ? (
