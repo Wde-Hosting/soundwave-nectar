@@ -25,13 +25,12 @@ export const useChatBot = () => {
         .from('settings')
         .select('value')
         .eq('key', 'OPENROUTER_API_KEY')
-        .maybeSingle();
+        .single();
 
       if (settingsError || !settings?.value) {
         throw new Error('OpenRouter API key not configured');
       }
 
-      // Call OpenRouter API directly
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -64,7 +63,7 @@ export const useChatBot = () => {
       console.error('Chat error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Unable to connect to chat service. Please try again later.",
+        description: error instanceof Error ? error.message : "Unable to connect to chat service",
         variant: "destructive",
       });
     } finally {

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, User, Video } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navItems = [
     { name: "Home", path: "/" },
@@ -36,6 +38,13 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
+            <Button
+              onClick={() => navigate('/live-lesson')}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+            >
+              <Video className="h-4 w-4" />
+              Lesson Live
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -65,6 +74,16 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
+            <Button
+              onClick={() => {
+                navigate('/live-lesson');
+                setIsOpen(false);
+              }}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2 justify-center"
+            >
+              <Video className="h-4 w-4" />
+              Lesson Live
+            </Button>
           </div>
         </div>
       )}
