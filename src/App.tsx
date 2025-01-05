@@ -2,7 +2,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import Navbar from "./components/Navbar";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -38,25 +37,23 @@ const App = () => {
           <ErrorBoundary>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
-              <AuthStateManager queryClient={queryClient} />
-              <div className="min-h-screen bg-background">
-                <Navbar />
-                <main className="pt-16">
-                  <AppRoutes />
-                </main>
-                <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-4">
-                  <Button
-                    onClick={() => navigate('/live-lesson')}
-                    className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
-                  >
-                    <Video className="h-5 w-5" />
-                    Lesson Live
-                  </Button>
-                  <ChatBot />
-                </div>
+            <AuthStateManager queryClient={queryClient} />
+            <div className="min-h-screen bg-background">
+              <Navbar />
+              <main className="pt-16">
+                <AppRoutes />
+              </main>
+              <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-4">
+                <Button
+                  onClick={() => navigate('/live-lesson')}
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                >
+                  <Video className="h-5 w-5" />
+                  Lesson Live
+                </Button>
+                <ChatBot />
               </div>
-            </BrowserRouter>
+            </div>
           </ErrorBoundary>
         </TooltipProvider>
       </ThemeProvider>
