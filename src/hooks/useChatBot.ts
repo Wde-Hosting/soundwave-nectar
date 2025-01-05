@@ -20,7 +20,8 @@ export const useChatBot = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
 
-      const response = await fetch('https://soundmaster-semantic-search.soundmaster.workers.dev', {
+      // Use the correct worker URL with the project ID
+      const response = await fetch(`https://soundmaster-semantic-search.${process.env.CLOUDFLARE_WORKER_SUBDOMAIN || 'workers.dev'}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,17 +33,22 @@ export const useChatBot = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response from chat service');
+        throw new Error(`Server responded with status: ${response.status}`);
       }
 
       const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       setMessages(prev => [...prev, { type: 'bot', content: data.response }]);
       setMessage("");
     } catch (error) {
       console.error('Chat error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
+        description: "Unable to connect to chat service. Please try again later.",
         variant: "destructive",
       });
     } finally {
