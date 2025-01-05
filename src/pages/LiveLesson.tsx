@@ -4,9 +4,10 @@ import { Video, ExternalLink } from "lucide-react";
 
 const LiveLesson = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  // This is a placeholder URL - replace with your actual iframe URL
-  const iframeUrl = "https://your-streaming-url.com";
+  // This is the stream URL - in production, this should be fetched from an environment variable
+  const streamUrl = "http://160.226.161.31:8000/Soundmasterlive";
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -28,7 +29,7 @@ const LiveLesson = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -45,19 +46,23 @@ const LiveLesson = () => {
           </Button>
         </div>
 
-        <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-xl">
-          <iframe
-            src={iframeUrl}
-            className="absolute inset-0 w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-xl bg-black">
+          <audio
+            src={streamUrl}
+            controls
+            autoPlay={isPlaying}
+            className="w-full h-full"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+          >
+            Your browser does not support the audio element.
+          </audio>
         </div>
 
-        <div className="mt-6 bg-gray-800 rounded-lg p-6">
+        <div className="mt-6 bg-card rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">About This Lesson</h2>
-          <p className="text-gray-300">
-            Welcome to the live lesson! Here you can watch and participate in real-time
+          <p className="text-muted-foreground">
+            Welcome to the live lesson! Here you can listen to real-time
             music sessions, learn new techniques, and interact with the instructor.
           </p>
         </div>

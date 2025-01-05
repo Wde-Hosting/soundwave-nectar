@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Video } from "lucide-react";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
 import SongList from "@/components/SongList";
@@ -18,7 +15,6 @@ import WelcomeSection from "@/components/home/WelcomeSection";
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const getUser = async () => {
@@ -36,15 +32,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="fixed bottom-4 right-4 z-50">
-        <Button
-          onClick={() => navigate('/live-lesson')}
-          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
-        >
-          <Video className="h-5 w-5" />
-          Lesson Live
-        </Button>
-      </div>
       <HeroSection user={user} onSearch={setSearchQuery} />
       <WelcomeSection />
       <StatsSection />
