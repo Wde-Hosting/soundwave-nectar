@@ -11,7 +11,14 @@ export const supabase = createClient<Database>(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce'
+    },
+    global: {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
     }
   }
 );
