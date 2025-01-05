@@ -20,35 +20,51 @@ export const useChatBot = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
 
-      // Use the correct worker URL with the project ID
-      const response = await fetch(`https://soundmaster-semantic-search.${process.env.CLOUDFLARE_WORKER_SUBDOMAIN || 'workers.dev'}`, {
+      // Get OpenRouter API key from settings
+      const { data: settings, error: settingsError } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'OPENROUTER_API_KEY')
+        .maybeSingle();
+
+      if (settingsError || !settings?.value) {
+        throw new Error('OpenRouter API key not configured');
+      }
+
+      // Call OpenRouter API directly
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${settings.value}`,
+          'HTTP-Referer': window.location.origin,
         },
         body: JSON.stringify({
-          searchQuery: message,
-          type: 'chat'
-        }),
+          model: 'mistralai/mistral-7b-instruct',
+          messages: [
+            {
+              role: "system",
+              content: "You are a helpful music assistant for Soundmaster, a professional sound and music service provider in Tzaneen & Limpopo."
+            },
+            { role: "user", content: message }
+          ]
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`Server responded with status: ${response.status}`);
+        throw new Error('Failed to get response from OpenRouter');
       }
 
       const data = await response.json();
+      const botResponse = data.choices[0]?.message?.content || 'Sorry, I could not process your request.';
       
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      setMessages(prev => [...prev, { type: 'bot', content: data.response }]);
+      setMessages(prev => [...prev, { type: 'bot', content: botResponse }]);
       setMessage("");
     } catch (error) {
       console.error('Chat error:', error);
       toast({
         title: "Error",
-        description: "Unable to connect to chat service. Please try again later.",
+        description: error instanceof Error ? error.message : "Unable to connect to chat service. Please try again later.",
         variant: "destructive",
       });
     } finally {
