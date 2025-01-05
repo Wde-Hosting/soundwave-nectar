@@ -18,33 +18,50 @@ export default {
         const { searchQuery, type } = await request.json();
         
         if (type === 'chat') {
-          // Enhanced system prompt for better context
-          const messages = [
-            {
-              role: "system",
-              content: `You are a helpful music assistant for Soundmaster, a professional sound and music service provider in Tzaneen & Limpopo. You can help with:
-              - Finding songs in our database
-              - Making song requests
-              - Booking appointments
-              - Answering questions about our services
-              - Providing music recommendations
-              - Explaining music terminology
-              Always be friendly, professional and knowledgeable about music. If you need to search for songs, use the database.`
-            },
-            { role: "user", content: searchQuery }
-          ];
+          // Get OpenRouter API key from settings
+          const { data: settings, error: settingsError } = await supabase
+            .from('settings')
+            .select('value')
+            .eq('key', 'OPENROUTER_API_KEY')
+            .maybeSingle();
 
-          // Call Cloudflare AI API with enhanced parameters
-          const ai = new Ai(env.AI);
-          const response = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
-            messages: messages,
-            stream: false,
-            max_tokens: 500,
-            temperature: 0.7,
-            top_p: 0.95
+          if (settingsError || !settings?.value) {
+            throw new Error('OpenRouter API key not configured');
+          }
+
+          // Call OpenRouter API
+          const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${settings.value}`,
+              'HTTP-Referer': request.headers.get('origin') || 'https://lovable.dev',
+            },
+            body: JSON.stringify({
+              model: 'mistralai/mistral-7b-instruct',
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a helpful music assistant for Soundmaster, a professional sound and music service provider in Tzaneen & Limpopo. You can help with:
+                  - Finding songs in our database
+                  - Making song requests
+                  - Booking appointments
+                  - Answering questions about our services
+                  - Providing music recommendations
+                  - Explaining music terminology
+                  Always be friendly, professional and knowledgeable about music.`
+                },
+                { role: "user", content: searchQuery }
+              ]
+            })
           });
 
-          let aiResponse = response.response;
+          if (!response.ok) {
+            throw new Error('Failed to get response from OpenRouter');
+          }
+
+          const aiResponse = await response.json();
+          let responseText = aiResponse.choices[0]?.message?.content || 'Sorry, I could not process your request.';
 
           // Enhanced song search integration
           if (searchQuery.toLowerCase().includes('song') || 
@@ -59,12 +76,12 @@ export default {
               });
 
             if (songs && songs.length > 0) {
-              aiResponse += "\n\nI found these songs in our database:\n" + 
+              responseText += "\n\nI found these songs in our database:\n" + 
                 songs.map(song => `- ${song.title} by ${song.artist}${song.is_karaoke ? ' (Karaoke version available)' : ''}`).join('\n');
             }
           }
 
-          return new Response(JSON.stringify({ response: aiResponse }), {
+          return new Response(JSON.stringify({ response: responseText }), {
             headers: {
               ...corsHeaders,
               'Content-Type': 'application/json',

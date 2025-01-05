@@ -19,50 +19,24 @@ export const useChatBot = () => {
     try {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
-      
-      const { data, error } = await supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'OPENROUTER_API_KEY')
-        .maybeSingle();
 
-      if (error) {
-        throw new Error('Failed to fetch API key from settings');
-      }
-
-      if (!data?.value) {
-        toast({
-          title: "Configuration Error",
-          description: "OpenRouter API key is not configured. Please contact the administrator.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch('https://soundmaster-semantic-search.soundmaster.workers.dev', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${data.value}`,
-          'HTTP-Referer': window.location.origin,
         },
         body: JSON.stringify({
-          model: 'mistralai/mistral-7b-instruct',
-          messages: [
-            { role: 'system', content: 'You are a helpful music teaching assistant.' },
-            { role: 'user', content: message }
-          ]
+          searchQuery: message,
+          type: 'chat'
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response from OpenRouter API');
+        throw new Error('Failed to get response from chat service');
       }
-      
-      const responseData = await response.json();
-      const aiResponse = responseData.choices[0]?.message?.content || 'Sorry, I could not process your request.';
-      
-      setMessages(prev => [...prev, { type: 'bot', content: aiResponse }]);
+
+      const data = await response.json();
+      setMessages(prev => [...prev, { type: 'bot', content: data.response }]);
       setMessage("");
     } catch (error) {
       console.error('Chat error:', error);
