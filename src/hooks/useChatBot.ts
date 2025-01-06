@@ -32,7 +32,7 @@ export const useChatBot = () => {
       }
 
       if (!settings?.value) {
-        throw new Error('OpenRouter API key not found in settings');
+        throw new Error('OpenRouter API key not found in settings. Please configure it in the settings.');
       }
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -41,21 +41,32 @@ export const useChatBot = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${settings.value}`,
           'HTTP-Referer': window.location.origin,
+          'X-Title': 'Soundmaster Assistant', // Application name
         },
         body: JSON.stringify({
           model: 'mistralai/mistral-7b-instruct',
           messages: [
             {
               role: "system",
-              content: "You are a helpful music assistant for Soundmaster, a professional sound and music service provider in Tzaneen & Limpopo."
+              content: `You are a helpful music assistant for Soundmaster, a professional sound and music service provider in Tzaneen & Limpopo. You help with:
+              - Finding songs in our database
+              - Making song requests
+              - Booking appointments
+              - Answering questions about our services
+              - Providing music recommendations
+              Always be friendly and professional.`
             },
             { role: "user", content: message }
-          ]
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
         })
       });
 
       if (!response.ok) {
-        throw new Error(`OpenRouter API error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('OpenRouter API error:', errorData);
+        throw new Error(`OpenRouter API error: ${response.statusText || 'Failed to get response'}`);
       }
 
       const data = await response.json();
