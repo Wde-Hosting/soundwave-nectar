@@ -7,25 +7,45 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
 import type { Booking } from "@/types/booking";
+import { useNavigate } from "react-router-dom";
 
 const timeSlots = ["10:00 AM", "2:00 PM", "4:00 PM", "6:00 PM"];
 
 const CalendarSection = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const navigate = useNavigate();
+
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['bookings', date],
     queryFn: async () => {
-      if (!date) return [];
+      if (!date || !session) return [];
       
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
         .eq('event_date', format(date, 'yyyy-MM-dd'));
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        toast({
+          title: "Error loading bookings",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
+      
       return (data || []) as Booking[];
     },
+    enabled: !!session, // Only run query if user is authenticated
   });
 
   const handleDateSelect = (newDate: Date | undefined) => {
@@ -35,6 +55,18 @@ const CalendarSection = () => {
         title: "Date Selected",
         description: `Selected date: ${format(newDate, 'MMMM do, yyyy')}`,
       });
+    }
+  };
+
+  const handleTimeSlotClick = () => {
+    if (!session) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to book a time slot",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
     }
   };
 
@@ -70,6 +102,7 @@ const CalendarSection = () => {
                       variant="outline"
                       className="w-full"
                       disabled={isTimeSlotBooked(time)}
+                      onClick={handleTimeSlotClick}
                     >
                       {time}
                     </Button>

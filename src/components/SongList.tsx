@@ -6,6 +6,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import SongCard from "./songs/SongCard";
 import SongSearch from "./songs/SongSearch";
 import EmptySongList from "./songs/EmptySongList";
+import { useToast } from "@/hooks/use-toast";
 
 interface SongListProps {
   searchQuery: string;
@@ -14,22 +15,38 @@ interface SongListProps {
 const SongList = ({ searchQuery }: SongListProps) => {
   const [localSearch, setLocalSearch] = useState("");
   const finalSearchQuery = searchQuery || localSearch;
+  const { toast } = useToast();
 
   const { data: songs, isLoading, error } = useQuery({
     queryKey: ['songs', finalSearchQuery],
     queryFn: async () => {
-      let query = supabase
-        .from('songs')
-        .select('*')
-        .eq('is_karaoke', true);
-      
-      if (finalSearchQuery) {
-        query = query.or(`title.ilike.%${finalSearchQuery}%,artist.ilike.%${finalSearchQuery}%,genre.ilike.%${finalSearchQuery}%`);
+      try {
+        let query = supabase
+          .from('songs')
+          .select('*')
+          .eq('is_karaoke', true);
+        
+        if (finalSearchQuery) {
+          query = query.or(`title.ilike.%${finalSearchQuery}%,artist.ilike.%${finalSearchQuery}%,genre.ilike.%${finalSearchQuery}%`);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error('Supabase error:', error);
+          toast({
+            title: "Error loading songs",
+            description: error.message,
+            variant: "destructive",
+          });
+          throw error;
+        }
+        
+        return data;
+      } catch (err) {
+        console.error('Query error:', err);
+        throw err;
       }
-      
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
     },
   });
 
