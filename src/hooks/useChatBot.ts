@@ -20,7 +20,6 @@ export const useChatBot = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
 
-      // Get OpenRouter API key from settings
       const { data: settings, error: settingsError } = await supabase
         .from('settings')
         .select('value')
@@ -28,11 +27,12 @@ export const useChatBot = () => {
         .maybeSingle();
 
       if (settingsError) {
+        console.error('Settings error:', settingsError);
         throw new Error('Failed to fetch API key from settings');
       }
 
       if (!settings?.value) {
-        throw new Error('OpenRouter API key not configured. Please configure it in the admin settings.');
+        throw new Error('OpenRouter API key not found in settings');
       }
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -55,7 +55,7 @@ export const useChatBot = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response from OpenRouter');
+        throw new Error(`OpenRouter API error: ${response.statusText}`);
       }
 
       const data = await response.json();
