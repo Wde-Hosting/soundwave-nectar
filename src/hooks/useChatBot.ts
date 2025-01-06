@@ -25,10 +25,14 @@ export const useChatBot = () => {
         .from('settings')
         .select('value')
         .eq('key', 'OPENROUTER_API_KEY')
-        .single();
+        .maybeSingle();
 
-      if (settingsError || !settings?.value) {
-        throw new Error('OpenRouter API key not configured');
+      if (settingsError) {
+        throw new Error('Failed to fetch API key from settings');
+      }
+
+      if (!settings?.value) {
+        throw new Error('OpenRouter API key not configured. Please configure it in the admin settings.');
       }
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
