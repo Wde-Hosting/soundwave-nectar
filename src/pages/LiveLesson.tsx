@@ -9,6 +9,7 @@ const LiveLesson = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchStreamUrl = async () => {
@@ -17,18 +18,23 @@ const LiveLesson = () => {
           .from('settings')
           .select('value')
           .eq('key', 'live_lesson_url')
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         
+        // Use the fetched URL or fall back to default
         setStreamUrl(data?.value || "http://160.226.161.31:8000/Soundmasterlive");
       } catch (error) {
         console.error('Error fetching stream URL:', error);
         toast({
           title: "Error",
-          description: "Could not load stream settings",
+          description: "Could not load stream settings, using default URL",
           variant: "destructive",
         });
+        // Set default URL on error
+        setStreamUrl("http://160.226.161.31:8000/Soundmasterlive");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -61,6 +67,14 @@ const LiveLesson = () => {
       variant: "destructive",
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
