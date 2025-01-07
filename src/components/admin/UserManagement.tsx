@@ -22,10 +22,11 @@ import { MoreHorizontal, Search, Loader2 } from "lucide-react";
 
 interface User {
   id: string;
-  email: string;
+  email?: string;
   username: string | null;
   is_admin: boolean;
   created_at: string;
+  avatar_url?: string | null;
 }
 
 const UserManagement = () => {
@@ -38,11 +39,25 @@ const UserManagement = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`
+          id,
+          username,
+          is_admin,
+          created_at,
+          avatar_url,
+          email:auth_users(email)
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as User[];
+
+      // Transform the data to match the User interface
+      const transformedData = data.map((profile: any) => ({
+        ...profile,
+        email: profile.auth_users?.email,
+      }));
+
+      return transformedData as User[];
     },
   });
 
@@ -110,7 +125,7 @@ const UserManagement = () => {
               {filteredUsers?.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>{user.username || "N/A"}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.email || "N/A"}</TableCell>
                   <TableCell>{user.is_admin ? "Admin" : "User"}</TableCell>
                   <TableCell>
                     {new Date(user.created_at).toLocaleDateString()}
