@@ -1,160 +1,71 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import AdminSongManager from "@/components/AdminSongManager";
-import UserManagement from "@/components/admin/UserManagement";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Music, Users, Calendar, Image, Settings } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
+import UserManagement from "@/components/admin/UserManagement";
 import LiveLessonSettings from "@/components/admin/LiveLessonSettings";
+import DesignCustomizer from "@/components/design/DesignCustomizer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [iframeUrl, setIframeUrl] = useState("");
+
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        setIsLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          toast({
-            title: "Access Denied",
-            description: "Please log in to access the admin panel",
-            variant: "destructive",
-          });
-          navigate("/auth");
-          return;
-        }
+    if (!session) {
+      navigate('/auth');
+    } else if (profile && !profile.is_admin) {
+      navigate('/');
+    }
+  }, [session, profile, navigate]);
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
-
-        if (!profile?.is_admin) {
-          toast({
-            title: "Access Denied",
-            description: "You must be an admin to view this page",
-            variant: "destructive",
-          });
-          navigate("/");
-          return;
-        }
-
-        // Fetch current iframe URL
-        const { data: settings } = await supabase
-          .from('settings')
-          .select('value')
-          .eq('key', 'live_lesson_url')
-          .single();
-        
-        if (settings?.value) {
-          setIframeUrl(settings.value);
-        }
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        navigate("/");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAdmin();
-  }, [navigate, toast]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+  if (!profile?.is_admin) {
+    return null;
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container py-8">
       <AdminHeader />
-
-      <Tabs defaultValue="content" className="space-y-4">
-        <TabsList className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          <TabsTrigger value="content" className="flex items-center gap-2">
-            <Music className="h-4 w-4" />
-            Content
-          </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Users
-          </TabsTrigger>
-          <TabsTrigger value="events" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Events
-          </TabsTrigger>
-          <TabsTrigger value="media" className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
-            Media
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Settings
-          </TabsTrigger>
+      <Tabs defaultValue="users" className="mt-6">
+        <TabsList>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="lessons">Live Lessons</TabsTrigger>
+          <TabsTrigger value="design">Design</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="content">
-          <Card>
-            <CardHeader>
-              <CardTitle>Content Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AdminSongManager />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="users">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <UserManagement />
-            </CardContent>
-          </Card>
+          <UserManagement />
         </TabsContent>
-
-        <TabsContent value="settings">
-          <LiveLessonSettings initialUrl={iframeUrl} />
+        <TabsContent value="lessons">
+          <LiveLessonSettings />
         </TabsContent>
-
-        <TabsContent value="events">
-          <Card>
-            <CardHeader>
-              <CardTitle>Event Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">Event management features coming soon.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="media">
-          <Card>
-            <CardHeader>
-              <CardTitle>Media Library</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">Media management features coming soon.</p>
-            </CardContent>
-          </Card>
+        <TabsContent value="design">
+          <DesignCustomizer />
         </TabsContent>
       </Tabs>
     </div>
   );
-};
+}
 
 export default Admin;
