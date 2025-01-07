@@ -1,8 +1,8 @@
 export interface User {
   id: string;
-  email?: string | undefined;  // Made optional with ?
-  user_metadata?: {
-    avatar_url?: string;
-    is_admin?: boolean;
-  };
+  email?: string;
+  username: string | null;
+  is_admin: boolean;
+  created_at: string;
+  avatar_url?: string | null;
 }
