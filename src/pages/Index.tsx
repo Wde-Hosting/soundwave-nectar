@@ -28,14 +28,15 @@ const Index = () => {
           .single();
 
         if (profile) {
-          setUser({
+          const userData: User = {
             id: authUser.id,
-            email: authUser.email,
+            email: authUser.email ?? undefined,
             username: profile.username,
             is_admin: profile.is_admin || false,
             created_at: profile.created_at,
             avatar_url: profile.avatar_url
-          });
+          };
+          setUser(userData);
         }
       }
     };
@@ -50,14 +51,15 @@ const Index = () => {
           .single();
 
         if (profile) {
-          setUser({
+          const userData: User = {
             id: session.user.id,
-            email: session.user.email,
+            email: session.user.email ?? undefined,
             username: profile.username,
             is_admin: profile.is_admin || false,
             created_at: profile.created_at,
             avatar_url: profile.avatar_url
-          });
+          };
+          setUser(userData);
         }
       } else {
         setUser(null);
