@@ -18,13 +18,50 @@ const Index = () => {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        // Fetch the user's profile data
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+
+        if (profile) {
+          setUser({
+            id: authUser.id,
+            email: authUser.email,
+            username: profile.username,
+            is_admin: profile.is_admin || false,
+            created_at: profile.created_at,
+            avatar_url: profile.avatar_url
+          });
+        }
+      }
     };
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            username: profile.username,
+            is_admin: profile.is_admin || false,
+            created_at: profile.created_at,
+            avatar_url: profile.avatar_url
+          });
+        }
+      } else {
+        setUser(null);
+      }
     });
 
     return () => subscription.unsubscribe();
