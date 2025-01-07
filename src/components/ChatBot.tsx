@@ -7,6 +7,7 @@ import ChatMessage from "./chat/ChatMessage";
 import ChatInput from "./chat/ChatInput";
 import { useChatBot } from "@/hooks/useChatBot";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 const QUICK_ACTIONS = [
   { label: "Book an Event", query: "I'd like to book an event" },
@@ -15,11 +16,34 @@ const QUICK_ACTIONS = [
   { label: "Live Lessons", query: "Tell me about live lessons" },
 ];
 
+const ADMIN_ACTIONS = [
+  { label: "View Stats", query: "/admin stats" },
+  { label: "User List", query: "/admin users" },
+  { label: "Settings", query: "/admin settings" },
+];
+
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { message, messages, isLoading, setMessage, handleSendMessage } = useChatBot();
   const [isMinimized, setIsMinimized] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', user.id)
+          .single();
+        setIsAdmin(!!profile?.is_admin);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -100,6 +124,17 @@ const ChatBot = () => {
                       size="sm"
                       onClick={() => handleQuickAction(action.query)}
                       className="text-sm"
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                  {isAdmin && ADMIN_ACTIONS.map((action) => (
+                    <Button
+                      key={action.label}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleQuickAction(action.query)}
+                      className="text-sm bg-primary/10"
                     >
                       {action.label}
                     </Button>

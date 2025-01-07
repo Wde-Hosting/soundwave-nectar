@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import AdminSongManager from "@/components/AdminSongManager";
+import UserManagement from "@/components/admin/UserManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Music, Users, Calendar, Image, Settings } from "lucide-react";
@@ -115,19 +116,19 @@ const Admin = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="settings">
-          <LiveLessonSettings initialUrl={iframeUrl} />
-        </TabsContent>
-
         <TabsContent value="users">
           <Card>
             <CardHeader>
               <CardTitle>User Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500">User management features coming soon.</p>
+              <UserManagement />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <LiveLessonSettings initialUrl={iframeUrl} />
         </TabsContent>
 
         <TabsContent value="events">
