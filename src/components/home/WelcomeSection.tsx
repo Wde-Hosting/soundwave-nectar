@@ -1,25 +1,26 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Music, Star, UserRound, Handshake, Volume2, VolumeX } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Music, Handshake, Star, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
+import DJMessage from "./welcome/DJMessage";
+import FeatureCard from "./welcome/FeatureCard";
+import ProfileImage from "./welcome/ProfileImage";
 
 const WelcomeSection = () => {
-  const [isAITalking, setIsAITalking] = useState(false);
   const [aiMessage, setAiMessage] = useState("");
-  const [isMuted, setIsMuted] = useState(false);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const generateAIResponse = async (topic: string) => {
     try {
-      setIsAITalking(true);
+      setIsLoading(true);
       
       const { data: settings } = await supabase
         .from('settings')
         .select('value')
         .eq('key', 'OPENROUTER_API_KEY')
-        .single();
+        .maybeSingle();
 
       if (!settings?.value) {
         throw new Error('API key not configured');
@@ -50,8 +51,6 @@ const WelcomeSection = () => {
       const data = await response.json();
       setAiMessage(data.choices[0].message.content);
       
-      // Text-to-speech could be added here in future iterations
-      
     } catch (error) {
       console.error('AI Response error:', error);
       toast({
@@ -60,18 +59,34 @@ const WelcomeSection = () => {
         variant: "destructive",
       });
     } finally {
-      setIsAITalking(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    // Generate a welcome message when component mounts
     generateAIResponse("welcoming our listeners to Soundmaster");
   }, []);
 
-  const handleCardClick = (topic: string) => {
-    generateAIResponse(topic);
-  };
+  const features = [
+    {
+      icon: Music,
+      title: "Sound Expert",
+      description: "Professional audio engineering",
+      onClick: () => generateAIResponse("our professional sound engineering services and equipment")
+    },
+    {
+      icon: Star,
+      title: "5-Star Service",
+      description: "Consistently rated excellent",
+      onClick: () => generateAIResponse("our five-star service and customer satisfaction")
+    },
+    {
+      icon: Handshake,
+      title: "Client Focus",
+      description: "Personalized event solutions",
+      onClick: () => generateAIResponse("our personalized event solutions and client focus")
+    }
+  ];
 
   return (
     <div className="py-20 bg-gradient-to-b from-gray-50 to-white">
@@ -80,82 +95,26 @@ const WelcomeSection = () => {
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-primary/10 rounded-full">
-                <UserRound className="h-6 w-6 text-primary" />
+                <Music className="h-6 w-6 text-primary" />
               </div>
               <h2 className="text-4xl font-bold leading-tight">
                 Meet <span className="text-primary">John Morden</span>
               </h2>
             </div>
             
-            {/* AI DJ Message Display */}
-            {aiMessage && (
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg relative animate-pulse">
-                <div className="flex items-center gap-2 mb-2">
-                  {isAITalking ? (
-                    <Volume2 className="h-5 w-5 text-primary animate-bounce" />
-                  ) : (
-                    <button 
-                      onClick={() => setIsMuted(!isMuted)} 
-                      className="hover:text-primary transition-colors"
-                    >
-                      {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                    </button>
-                  )}
-                  <span className="font-semibold text-primary">Live: DJ John</span>
-                </div>
-                <p className="text-gray-700 italic">{aiMessage}</p>
-              </div>
-            )}
+            <DJMessage message={aiMessage} isLoading={isLoading} />
 
             <p className="text-xl text-gray-600">
               With over a decade of experience in sound engineering, John brings professional audio excellence to every event in Tzaneen & Limpopo
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-              <div 
-                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
-                onClick={() => handleCardClick("our professional sound engineering services and equipment")}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Music className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Sound Expert</h3>
-                    <p className="text-gray-600">Professional audio engineering</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
-                onClick={() => handleCardClick("our five-star service and customer satisfaction")}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Star className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">5-Star Service</h3>
-                    <p className="text-gray-600">Consistently rated excellent</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer transform hover:scale-105"
-                onClick={() => handleCardClick("our personalized event solutions and client focus")}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Handshake className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Client Focus</h3>
-                    <p className="text-gray-600">Personalized event solutions</p>
-                  </div>
-                </div>
-              </div>
+              {features.map((feature) => (
+                <FeatureCard
+                  key={feature.title}
+                  {...feature}
+                />
+              ))}
             </div>
             
             <div className="pt-8">
@@ -168,42 +127,10 @@ const WelcomeSection = () => {
             </div>
           </div>
           
-          <div className="relative">
-            <div className="relative z-10 rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-transform duration-300">
-              <div className="aspect-w-4 aspect-h-5">
-                <img
-                  src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745"
-                  alt="Professional sound equipment"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
-                <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                  <div 
-                    className="flex items-center gap-4 mb-4 cursor-pointer transform hover:scale-105 transition-transform"
-                    onClick={() => handleCardClick("our professional sound equipment and top-tier systems")}
-                  >
-                    <img
-                      src="/lovable-uploads/fb8dd939-8a3d-444e-ac29-8f9d0e54268d.png"
-                      alt="Professional Sound Equipment"
-                      className="w-16 h-16 rounded-full object-cover border-2 border-white"
-                    />
-                    <div>
-                      <h3 className="text-2xl font-bold">Professional Equipment</h3>
-                      <p className="text-gray-200">Top-tier sound systems</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} className="h-5 w-5 fill-current text-yellow-400" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -bottom-4 -right-4 w-72 h-72 bg-primary/10 rounded-full -z-10 blur-2xl"></div>
-            <div className="absolute -top-4 -left-4 w-72 h-72 bg-accent/10 rounded-full -z-10 blur-2xl"></div>
-          </div>
+          <ProfileImage 
+            imageUrl="https://images.unsplash.com/photo-1470225620780-dba8ba36b745"
+            onClick={() => generateAIResponse("our professional sound equipment and top-tier systems")}
+          />
         </div>
       </div>
     </div>
