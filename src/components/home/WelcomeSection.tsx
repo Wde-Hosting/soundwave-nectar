@@ -1,20 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Music, Handshake, Star, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import DJMessage from "./welcome/DJMessage";
-import FeatureCard from "./welcome/FeatureCard";
+import DJMessageEnhanced from "./welcome/DJMessageEnhanced";
+import FeatureCardEnhanced from "./welcome/FeatureCardEnhanced";
 import ProfileImage from "./welcome/ProfileImage";
+import { useAIMessageQueue } from "./welcome/AIMessageQueue";
 
 const WelcomeSection = () => {
-  const [aiMessage, setAiMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  const { addToQueue, isProcessing, currentMessage } = useAIMessageQueue();
 
   const generateAIResponse = async (topic: string) => {
     try {
       setIsLoading(true);
+      setActiveFeature(topic);
       
       const { data: settings } = await supabase
         .from('settings')
@@ -49,7 +52,7 @@ const WelcomeSection = () => {
       });
 
       const data = await response.json();
-      setAiMessage(data.choices[0].message.content);
+      addToQueue(data.choices[0].message.content);
       
     } catch (error) {
       console.error('AI Response error:', error);
@@ -62,10 +65,6 @@ const WelcomeSection = () => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    generateAIResponse("welcoming our listeners to Soundmaster");
-  }, []);
 
   const features = [
     {
@@ -102,7 +101,11 @@ const WelcomeSection = () => {
               </h2>
             </div>
             
-            <DJMessage message={aiMessage} isLoading={isLoading} />
+            <DJMessageEnhanced 
+              message={currentMessage || ""} 
+              isLoading={isLoading}
+              isProcessing={isProcessing}
+            />
 
             <p className="text-xl text-gray-600">
               With over a decade of experience in sound engineering, John brings professional audio excellence to every event in Tzaneen & Limpopo
@@ -110,9 +113,10 @@ const WelcomeSection = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
               {features.map((feature) => (
-                <FeatureCard
+                <FeatureCardEnhanced
                   key={feature.title}
                   {...feature}
+                  isActive={activeFeature === feature.title}
                 />
               ))}
             </div>
