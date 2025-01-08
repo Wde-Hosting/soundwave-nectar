@@ -22,14 +22,17 @@ const FeatureCardEnhanced = ({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className={cn(
-        "bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer",
-        isActive && "ring-2 ring-primary"
+        "bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border",
+        isActive && "ring-2 ring-primary border-primary"
       )}
       onClick={onClick}
     >
       <div className="flex items-start gap-4">
         <motion.div 
-          className="p-2 bg-primary/10 rounded-lg"
+          className={cn(
+            "p-2 rounded-lg",
+            isActive ? "bg-primary/20" : "bg-primary/10"
+          )}
           animate={{ scale: isActive ? 1.1 : 1 }}
           transition={{ duration: 0.2 }}
         >
