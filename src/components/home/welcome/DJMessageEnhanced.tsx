@@ -48,9 +48,14 @@ const DJMessageEnhanced = ({ message, isLoading, isProcessing }: DJMessageEnhanc
           )}
         </span>
       </div>
-      <p className="text-gray-700 italic">
+      <motion.p 
+        className="text-gray-700 italic"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         {isLoading ? "Loading..." : message}
-      </p>
+      </motion.p>
     </motion.div>
   );
 };

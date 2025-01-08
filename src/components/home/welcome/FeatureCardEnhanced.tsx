@@ -28,9 +28,13 @@ const FeatureCardEnhanced = ({
       onClick={onClick}
     >
       <div className="flex items-start gap-4">
-        <div className="p-2 bg-primary/10 rounded-lg">
+        <motion.div 
+          className="p-2 bg-primary/10 rounded-lg"
+          animate={{ scale: isActive ? 1.1 : 1 }}
+          transition={{ duration: 0.2 }}
+        >
           <Icon className="h-6 w-6 text-primary" />
-        </div>
+        </motion.div>
         <div>
           <h3 className="font-semibold text-lg">{title}</h3>
           <p className="text-gray-600">{description}</p>
