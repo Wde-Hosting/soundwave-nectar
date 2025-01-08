@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface DJMessageEnhancedProps {
   message: string;
@@ -22,11 +23,15 @@ const DJMessageEnhanced = ({ message, isLoading, isProcessing }: DJMessageEnhanc
   }, [message]);
 
   return (
-    <div className={cn(
-      "bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg relative transition-all duration-300",
-      isAnimating && "scale-105",
-      isProcessing && "animate-pulse"
-    )}>
+    <motion.div
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      className={cn(
+        "bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg relative transition-all duration-300",
+        isAnimating && "scale-105",
+        isProcessing && "animate-pulse"
+      )}
+    >
       <div className="flex items-center gap-2 mb-2">
         <Button 
           variant="ghost"
@@ -46,7 +51,7 @@ const DJMessageEnhanced = ({ message, isLoading, isProcessing }: DJMessageEnhanc
       <p className="text-gray-700 italic">
         {isLoading ? "Loading..." : message}
       </p>
-    </div>
+    </motion.div>
   );
 };
 

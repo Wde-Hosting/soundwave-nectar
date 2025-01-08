@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 export const useAIMessageQueue = () => {
   const [messageQueue, setMessageQueue] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState<string>("");
 
   useEffect(() => {
     if (messageQueue.length > 0 && !isProcessing) {
@@ -13,12 +14,12 @@ export const useAIMessageQueue = () => {
 
   const processNextMessage = async () => {
     setIsProcessing(true);
-    const currentMessage = messageQueue[0];
+    const message = messageQueue[0];
     
     try {
-      // Process message (future audio implementation)
+      // Simulate message processing with a delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      setCurrentMessage(message);
       setMessageQueue(prev => prev.slice(1));
     } catch (error) {
       console.error('Error processing message:', error);
@@ -39,6 +40,6 @@ export const useAIMessageQueue = () => {
   return {
     addToQueue,
     isProcessing,
-    currentMessage: messageQueue[0],
+    currentMessage,
   };
 };
