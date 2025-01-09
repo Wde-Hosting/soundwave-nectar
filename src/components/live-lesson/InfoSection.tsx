@@ -8,18 +8,33 @@ interface InfoSectionProps {
 }
 
 const InfoSection = ({ isPlaying }: InfoSectionProps) => {
-  const { data: streamStatus } = useQuery({
+  const { data: streamStatus, error } = useQuery({
     queryKey: ['stream-status'],
     queryFn: async () => {
       try {
-        const response = await fetch("http://160.226.161.31:8000/Soundmasterlive");
+        // Try HTTPS first
+        const httpsUrl = "https://160.226.161.31:8000/Soundmasterlive";
+        const response = await fetch(httpsUrl);
         return response.ok;
-      } catch (error) {
-        console.error('Stream check error:', error);
-        return false;
+      } catch (httpsError) {
+        console.warn('HTTPS stream check failed:', httpsError);
+        try {
+          // Fallback to checking stream status through backend
+          const { data: settings } = await supabase
+            .from('settings')
+            .select('value')
+            .eq('key', 'stream_status')
+            .maybeSingle();
+          
+          return settings?.value === 'online';
+        } catch (error) {
+          console.error('Stream status check failed:', error);
+          return false;
+        }
       }
     },
     refetchInterval: 30000, // Check every 30 seconds
+    retry: 2, // Retry failed requests twice
   });
 
   return (
@@ -31,7 +46,15 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         </Badge>
       </div>
 
-      {!streamStatus && (
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Unable to check stream status. Please refresh the page or contact support if the issue persists.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!streamStatus && !error && (
         <Alert variant="destructive">
           <AlertDescription>
             No stream is currently live. Please check back later or contact support if you believe this is an error.
