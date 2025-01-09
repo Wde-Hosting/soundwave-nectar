@@ -3,7 +3,7 @@ import { toast } from "@/components/ui/use-toast";
 
 export interface AIResponse {
   text: string;
-  type: 'text' | 'song' | 'event' | 'booking';
+  type: 'text' | 'song' | 'event' | 'booking' | 'support';
   data?: any;
 }
 
@@ -25,6 +25,8 @@ export const generateAIResponse = async (topic: string, context?: string): Promi
     - Making song recommendations
     - Booking appointments
     - Answering questions about services
+    - Troubleshooting stream issues
+    - Providing technical support
     Keep responses engaging and fun - like a real radio DJ. Include emojis and sound-related terms.
     ${context || ''}`;
 
@@ -52,6 +54,20 @@ export const generateAIResponse = async (topic: string, context?: string): Promi
 
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
+
+    // Check for technical support queries
+    if (topic.toLowerCase().includes('help') || 
+        topic.toLowerCase().includes('problem') || 
+        topic.toLowerCase().includes('issue')) {
+      return {
+        text: aiResponse,
+        type: 'support',
+        data: {
+          category: 'technical',
+          priority: topic.toLowerCase().includes('urgent') ? 'high' : 'normal'
+        }
+      };
+    }
 
     // Check if response contains song-related content
     if (topic.toLowerCase().includes('song') || topic.toLowerCase().includes('music')) {
@@ -102,7 +118,7 @@ export const generateAIResponse = async (topic: string, context?: string): Promi
     console.error('AI Response error:', error);
     toast({
       title: "Error",
-      description: "Couldn't connect to our AI DJ right now. Please try again later!",
+      description: "Service unavailable, please try again later.",
       variant: "destructive",
     });
     throw error;
@@ -112,18 +128,18 @@ export const generateAIResponse = async (topic: string, context?: string): Promi
 export const processAIResponse = async (response: AIResponse) => {
   switch (response.type) {
     case 'song':
-      // Handle song recommendations
       return `${response.text}\n\nFound these songs:\n${response.data.map((song: any) => 
         `- ${song.title} by ${song.artist}`).join('\n')}`;
     
     case 'booking':
-      // Handle booking-related responses
       return `${response.text}\n\nWould you like me to help you schedule an appointment?`;
     
     case 'event':
-      // Handle event-related responses
       return `${response.text}\n\nUpcoming events:\n${response.data.map((event: any) => 
         `- ${event.title} on ${new Date(event.date).toLocaleDateString()}`).join('\n')}`;
+    
+    case 'support':
+      return `${response.text}\n\nI'll help you troubleshoot this issue. Can you provide more details about what you're experiencing?`;
     
     default:
       return response.text;

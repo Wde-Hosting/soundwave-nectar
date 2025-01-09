@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 
 type Theme = "dark" | "light" | "system";
 
@@ -28,9 +29,13 @@ export function ThemeProvider({
   storageKey = "ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+    } catch {
+      return defaultTheme;
+    }
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -51,9 +56,22 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+    setTheme: (newTheme: Theme) => {
+      try {
+        localStorage.setItem(storageKey, newTheme);
+        setTheme(newTheme);
+        toast({
+          title: "Theme Updated",
+          description: `Switched to ${newTheme} mode`,
+        });
+      } catch (error) {
+        console.error('Error saving theme preference:', error);
+        toast({
+          title: "Error",
+          description: "Could not save theme preference",
+          variant: "destructive",
+        });
+      }
     },
   };
 
@@ -63,13 +81,13 @@ export function ThemeProvider({
       <Button
         variant="outline"
         size="icon"
-        className="fixed top-4 right-4 z-50 rounded-full"
+        className="fixed top-4 right-4 z-50 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
         onClick={() => value.setTheme(theme === "dark" ? "light" : "dark")}
       >
         {theme === "dark" ? (
-          <Sun className="h-5 w-5" />
+          <Sun className="h-5 w-5 animate-in fade-in" />
         ) : (
-          <Moon className="h-5 w-5" />
+          <Moon className="h-5 w-5 animate-in fade-in" />
         )}
       </Button>
     </ThemeProviderContext.Provider>
