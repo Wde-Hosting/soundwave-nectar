@@ -26,7 +26,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
     <div className="mt-8 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Live Lesson Status</h2>
-        <Badge variant={streamStatus ? "success" : "destructive"}>
+        <Badge variant={streamStatus ? "secondary" : "destructive"}>
           {streamStatus ? "Stream Available" : "Stream Offline"}
         </Badge>
       </div>

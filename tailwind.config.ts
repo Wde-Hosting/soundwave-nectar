@@ -32,6 +32,10 @@ export default {
           DEFAULT: "#8B4513",
           foreground: "#FFFFFF",
         },
+        success: {
+          DEFAULT: "#22c55e",
+          foreground: "#FFFFFF",
+        },
         accent: {
           DEFAULT: "#FFD700",
           foreground: "#000000",
