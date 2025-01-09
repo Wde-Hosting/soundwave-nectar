@@ -17,7 +17,7 @@ export const useAIMessageQueue = () => {
     const message = messageQueue[0];
     
     try {
-      // Simulate message processing with a delay for smooth transitions
+      // Add typing animation delay for natural feel
       await new Promise(resolve => setTimeout(resolve, 1000));
       setCurrentMessage(message);
       setMessageQueue(prev => prev.slice(1));

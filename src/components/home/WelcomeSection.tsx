@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useAIMessageQueue } from "./welcome/AIMessageQueue";
 import MainContent from "./welcome/MainContent";
 import ProfileImage from "./welcome/ProfileImage";
-import { generateAIResponse } from "@/utils/ai/generateAIResponse";
+import { generateAIResponse, processAIResponse } from "@/utils/ai/aiUtils";
 import { djFeatures } from "@/utils/features/djFeatures";
+import { toast } from "@/components/ui/use-toast";
 
 const WelcomeSection = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,8 +14,29 @@ const WelcomeSection = () => {
   const handleFeatureClick = async (topic: string) => {
     try {
       setIsLoading(true);
-      const response = await generateAIResponse(topic);
-      addToQueue(response);
+      const aiResponse = await generateAIResponse(topic);
+      const processedResponse = await processAIResponse(aiResponse);
+      addToQueue(processedResponse);
+
+      // Show relevant toasts based on response type
+      if (aiResponse.type === 'song') {
+        toast({
+          title: "Songs Found! 🎵",
+          description: "Check out these matching songs from our collection.",
+        });
+      } else if (aiResponse.type === 'booking') {
+        toast({
+          title: "Ready to Book? 📅",
+          description: "Click to schedule your appointment now!",
+        });
+      }
+    } catch (error) {
+      console.error('Error handling feature click:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process your request. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
