@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdmin } from "@/contexts/AdminContext";
+import { useNavigate } from "react-router-dom";
 
 export type Message = {
   type: 'user' | 'bot';
@@ -12,6 +14,29 @@ export const useChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { isAdmin } = useAdmin();
+  const navigate = useNavigate();
+
+  const handleAdminCommand = async (command: string) => {
+    if (!isAdmin) {
+      setMessages(prev => [...prev, { type: 'bot', content: "You don't have permission to use admin commands." }]);
+      return true;
+    }
+
+    const adminCommands = {
+      '/admin stats': () => navigate('/admin/stats'),
+      '/admin users': () => navigate('/admin/users'),
+      '/admin settings': () => navigate('/admin/settings'),
+    };
+
+    const commandFn = adminCommands[command as keyof typeof adminCommands];
+    if (commandFn) {
+      commandFn();
+      return true;
+    }
+
+    return false;
+  };
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -19,6 +44,15 @@ export const useChatBot = () => {
     try {
       setIsLoading(true);
       setMessages(prev => [...prev, { type: 'user', content: message }]);
+
+      // Check for admin commands
+      if (message.startsWith('/admin')) {
+        const isAdminCommand = await handleAdminCommand(message);
+        if (isAdminCommand) {
+          setMessage("");
+          return;
+        }
+      }
 
       const { data: settings, error: settingsError } = await supabase
         .from('settings')
@@ -41,7 +75,7 @@ export const useChatBot = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${settings.value}`,
           'HTTP-Referer': window.location.origin,
-          'X-Title': 'Soundmaster Assistant', // Application name
+          'X-Title': 'Soundmaster Assistant',
         },
         body: JSON.stringify({
           model: 'mistralai/mistral-7b-instruct',

@@ -7,7 +7,7 @@ import ChatMessage from "./chat/ChatMessage";
 import ChatInput from "./chat/ChatInput";
 import { useChatBot } from "@/hooks/useChatBot";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdmin } from "@/contexts/AdminContext";
 
 const QUICK_ACTIONS = [
   { label: "Book an Event", query: "I'd like to book an event" },
@@ -24,26 +24,10 @@ const ADMIN_ACTIONS = [
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin } = useAdmin();
   const scrollRef = useRef<HTMLDivElement>(null);
   const { message, messages, isLoading, setMessage, handleSendMessage } = useChatBot();
   const [isMinimized, setIsMinimized] = useState(false);
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
-        setIsAdmin(!!profile?.is_admin);
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {

@@ -8,6 +8,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import AuthStateManager from "./components/auth/AuthStateManager";
 import AppRoutes from "./components/routing/AppRoutes";
 import ChatBot from "./components/ChatBot";
+import { AdminProvider } from "./contexts/AdminContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,22 +29,24 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-        <TooltipProvider>
-          <ErrorBoundary>
-            <Toaster />
-            <Sonner />
-            <AuthStateManager queryClient={queryClient} />
-            <div className="min-h-screen bg-background">
-              <Navbar />
-              <main className="pt-16">
-                <AppRoutes />
-              </main>
-              <div className="fixed bottom-4 right-4 z-50">
-                <ChatBot />
+        <AdminProvider>
+          <TooltipProvider>
+            <ErrorBoundary>
+              <Toaster />
+              <Sonner />
+              <AuthStateManager queryClient={queryClient} />
+              <div className="min-h-screen bg-background">
+                <Navbar />
+                <main className="pt-16">
+                  <AppRoutes />
+                </main>
+                <div className="fixed bottom-4 right-4 z-50">
+                  <ChatBot />
+                </div>
               </div>
-            </div>
-          </ErrorBoundary>
-        </TooltipProvider>
+            </ErrorBoundary>
+          </TooltipProvider>
+        </AdminProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
