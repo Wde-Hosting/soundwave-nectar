@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Music, Handshake, Star, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { useAIMessageQueue } from "./welcome/AIMessageQueue";
 import DJMessageEnhanced from "./welcome/DJMessageEnhanced";
 import FeatureCardEnhanced from "./welcome/FeatureCardEnhanced";
 import ProfileImage from "./welcome/ProfileImage";
-import { useAIMessageQueue } from "./welcome/AIMessageQueue";
+import HeaderSection from "./welcome/HeaderSection";
+import Description from "./welcome/Description";
+import ConsultationButton from "./welcome/ConsultationButton";
+import { Music, Handshake, Star } from "lucide-react";
 
 const WelcomeSection = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -92,14 +93,7 @@ const WelcomeSection = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Music className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-4xl font-bold leading-tight">
-                Meet <span className="text-primary">John Morden</span>
-              </h2>
-            </div>
+            <HeaderSection />
             
             <DJMessageEnhanced 
               message={currentMessage || ""} 
@@ -107,9 +101,7 @@ const WelcomeSection = () => {
               isProcessing={isProcessing}
             />
 
-            <p className="text-xl text-gray-600">
-              With over a decade of experience in sound engineering, John brings professional audio excellence to every event in Tzaneen & Limpopo
-            </p>
+            <Description />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
               {features.map((feature) => (
@@ -121,14 +113,7 @@ const WelcomeSection = () => {
               ))}
             </div>
             
-            <div className="pt-8">
-              <Link to="/contact">
-                <Button className="group">
-                  Book a Consultation
-                  <ArrowRight className="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-            </div>
+            <ConsultationButton />
           </div>
           
           <ProfileImage 
