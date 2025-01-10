@@ -18,6 +18,7 @@ const AudioPlayer = ({ streamUrl, isPlaying, isMuted, onPlayStateChange }: Audio
 
     const handlePlay = async () => {
       try {
+        audio.load(); // Force reload the audio source
         await audio.play();
         console.log("Stream playback started");
         onPlayStateChange(true);
@@ -26,9 +27,15 @@ const AudioPlayer = ({ streamUrl, isPlaying, isMuted, onPlayStateChange }: Audio
         onPlayStateChange(false);
         toast({
           title: "Playback Error",
-          description: "Unable to play the stream. Please try again.",
+          description: "Unable to play the stream. Trying to reconnect...",
           variant: "destructive",
         });
+        // Attempt to reconnect after 5 seconds
+        setTimeout(() => {
+          if (audioRef.current) {
+            handlePlay();
+          }
+        }, 5000);
       }
     };
 
@@ -38,6 +45,12 @@ const AudioPlayer = ({ streamUrl, isPlaying, isMuted, onPlayStateChange }: Audio
       audio.pause();
       onPlayStateChange(false);
     }
+
+    // Cleanup function
+    return () => {
+      audio.pause();
+      onPlayStateChange(false);
+    };
   }, [isPlaying, streamUrl, onPlayStateChange]);
 
   useEffect(() => {
@@ -59,7 +72,7 @@ const AudioPlayer = ({ streamUrl, isPlaying, isMuted, onPlayStateChange }: Audio
     onPlayStateChange(false);
     toast({
       title: "Stream Error",
-      description: "There was an error connecting to the stream. Please try again.",
+      description: "There was an error connecting to the stream. Retrying...",
       variant: "destructive",
     });
   };

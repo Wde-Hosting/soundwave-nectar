@@ -10,10 +10,10 @@ const LiveLesson = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [streamUrl, setStreamUrl] = useState<string>("http://160.226.161.31:8000/Soundmasterlive");
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkStreamAvailability = async () => {
+    // Check stream availability on component mount
+    const checkStream = async () => {
       try {
         const response = await fetch(streamUrl, { method: 'HEAD' });
         if (!response.ok) {
@@ -26,14 +26,12 @@ const LiveLesson = () => {
         }
       } catch (error) {
         console.error('Error checking stream:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    checkStreamAvailability();
+    checkStream();
     // Check stream availability every 30 seconds
-    const interval = setInterval(checkStreamAvailability, 30000);
+    const interval = setInterval(checkStream, 30000);
     return () => clearInterval(interval);
   }, [streamUrl]);
 
@@ -55,14 +53,6 @@ const LiveLesson = () => {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">

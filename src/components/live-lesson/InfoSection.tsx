@@ -11,25 +11,27 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
   const { data: streamStatus, error } = useQuery({
     queryKey: ['stream-status'],
     queryFn: async () => {
-      const { data: settings } = await supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'stream_status')
-        .maybeSingle();
-      
-      return settings?.value === 'online';
+      try {
+        const response = await fetch("http://160.226.161.31:8000/Soundmasterlive", {
+          method: 'HEAD'
+        });
+        return response.ok;
+      } catch (error) {
+        console.error("Error checking stream status:", error);
+        return false;
+      }
     },
-    refetchInterval: 5000, // Check every 5 seconds for more responsive updates
+    refetchInterval: 5000, // Check every 5 seconds
   });
 
   const getStreamStatusBadge = () => {
     if (error) return <Badge variant="destructive">Error</Badge>;
-    if (streamStatus) return <Badge variant="success">Live</Badge>;
+    if (streamStatus) return <Badge className="bg-green-500 hover:bg-green-600">Live</Badge>;
     return <Badge variant="secondary">Offline</Badge>;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-6">
       <div className="flex items-center gap-2">
         <h2 className="text-2xl font-bold">Live Stream Status</h2>
         {getStreamStatusBadge()}
