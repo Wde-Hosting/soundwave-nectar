@@ -15,6 +15,7 @@ export default {
     try {
       const url = new URL(request.url);
       const targetUrl = url.searchParams.get('url');
+      const checkOnly = url.searchParams.get('checkOnly') === 'true';
 
       if (!targetUrl) {
         throw new Error('No target URL provided');
@@ -22,10 +23,9 @@ export default {
 
       // Set a timeout for the fetch request
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout for status checks
 
       try {
-        // Forward the request to the target URL with specific headers for Icecast
         const response = await fetch(targetUrl, {
           method: request.method,
           headers: {
@@ -33,7 +33,7 @@ export default {
             'Accept': '*/*',
             'Connection': 'keep-alive',
             'Icy-MetaData': '1',
-            'Range': request.headers.get('Range') || 'bytes=0-',
+            'Range': checkOnly ? 'bytes=0-0' : (request.headers.get('Range') || 'bytes=0-'),
           },
           signal: controller.signal,
           cf: {
@@ -46,7 +46,21 @@ export default {
 
         clearTimeout(timeout);
 
-        // Create a new response with CORS headers
+        // If this is just a status check, return a simple response
+        if (checkOnly) {
+          return new Response(JSON.stringify({ 
+            status: response.status,
+            isLive: response.status === 200 || response.status === 206 
+          }), {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+            },
+          });
+        }
+
+        // Otherwise return the full stream response
         const modifiedResponse = new Response(response.body, {
           status: response.status,
           statusText: response.statusText,

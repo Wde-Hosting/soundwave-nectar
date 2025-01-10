@@ -10,33 +10,28 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
   const { data: streamStatus, error } = useQuery({
     queryKey: ['stream-status'],
     queryFn: async ({ signal }) => {
-      let timeoutId: NodeJS.Timeout;
-
       try {
-        const timeoutPromise = new Promise((_, reject) => {
-          timeoutId = setTimeout(() => {
-            reject(new Error('Request timeout'));
-          }, 10000);
-        });
+        const response = await fetch(
+          "https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive&checkOnly=true",
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache'
+            },
+            signal,
+            cache: 'no-store',
+          }
+        );
 
-        const fetchPromise = fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
-          method: 'GET',
-          headers: {
-            'Accept': '*/*',
-            'Range': 'bytes=0-0',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
-          signal,
-          cache: 'no-store',
-        });
+        if (!response.ok) {
+          throw new Error('Failed to check stream status');
+        }
 
-        const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
-        clearTimeout(timeoutId);
-        
-        return response.status === 200 || response.status === 206;
+        const data = await response.json();
+        return data.isLive;
       } catch (error) {
-        clearTimeout(timeoutId);
         console.error("Error checking stream status:", error);
         return false;
       }
