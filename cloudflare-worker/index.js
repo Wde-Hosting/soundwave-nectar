@@ -33,6 +33,7 @@ export default {
             'Accept': '*/*',
             'Connection': 'keep-alive',
             'Icy-MetaData': '1',
+            'Range': request.headers.get('Range') || 'bytes=0-',
           },
           signal: controller.signal,
           cf: {
@@ -57,6 +58,7 @@ export default {
             'Expires': '0',
             'Connection': 'keep-alive',
             'Access-Control-Expose-Headers': '*',
+            'Accept-Ranges': 'bytes',
           },
         });
 
