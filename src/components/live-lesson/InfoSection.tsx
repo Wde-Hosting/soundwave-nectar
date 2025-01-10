@@ -12,7 +12,10 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
     queryFn: async () => {
       try {
         const response = await fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
-          method: 'HEAD'
+          method: 'HEAD',
+          headers: {
+            'Accept': '*/*',
+          },
         });
         return response.ok;
       } catch (error) {
@@ -20,7 +23,9 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         return false;
       }
     },
-    refetchInterval: 5000, // Check every 5 seconds
+    refetchInterval: 5000,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const getStreamStatusBadge = () => {
@@ -39,7 +44,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       {error && (
         <Alert variant="destructive">
           <AlertDescription>
-            Unable to check stream status. Please refresh the page.
+            Unable to check stream status. Please refresh the page or try again later.
           </AlertDescription>
         </Alert>
       )}

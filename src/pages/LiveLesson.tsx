@@ -12,10 +12,15 @@ const LiveLesson = () => {
   const [streamUrl, setStreamUrl] = useState<string>("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive");
 
   useEffect(() => {
-    // Check stream availability on component mount
     const checkStream = async () => {
       try {
-        const response = await fetch(streamUrl, { method: 'HEAD' });
+        const response = await fetch(streamUrl, {
+          method: 'HEAD',
+          headers: {
+            'Accept': '*/*',
+          },
+        });
+        
         if (!response.ok) {
           console.error('Stream not available:', response.status);
           toast({
@@ -30,7 +35,6 @@ const LiveLesson = () => {
     };
 
     checkStream();
-    // Check stream availability every 30 seconds
     const interval = setInterval(checkStream, 30000);
     return () => clearInterval(interval);
   }, [streamUrl]);
