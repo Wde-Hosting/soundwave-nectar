@@ -11,20 +11,15 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
   const { data: streamStatus, error } = useQuery({
     queryKey: ['stream-status'],
     queryFn: async () => {
-      try {
-        const { data: settings } = await supabase
-          .from('settings')
-          .select('value')
-          .eq('key', 'stream_status')
-          .maybeSingle();
-        
-        return settings?.value === 'online';
-      } catch (error) {
-        console.error('Stream status check failed:', error);
-        return false;
-      }
+      const { data: settings } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'stream_status')
+        .maybeSingle();
+      
+      return settings?.value === 'online';
     },
-    refetchInterval: 10000, // Check every 10 seconds for more responsive updates
+    refetchInterval: 10000,
   });
 
   return (
@@ -39,7 +34,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       {error && (
         <Alert variant="destructive">
           <AlertDescription>
-            Connection error. Please refresh.
+            Unable to check stream status. Please refresh.
           </AlertDescription>
         </Alert>
       )}
@@ -47,7 +42,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       {!streamStatus && !error && (
         <Alert>
           <AlertDescription>
-            No live lesson right now. Check back soon!
+            No live lesson is currently streaming. Check back soon!
           </AlertDescription>
         </Alert>
       )}
@@ -55,7 +50,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       {isPlaying && streamStatus && (
         <Alert>
           <AlertDescription>
-            You're connected! Enjoying the lesson.
+            Connected to live stream! Enjoy your lesson.
           </AlertDescription>
         </Alert>
       )}
@@ -63,7 +58,8 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       <div className="prose dark:prose-invert max-w-none">
         <h3>About Live Lessons</h3>
         <p>
-          Join our interactive DJ lessons. Learn from pros!
+          Join our interactive DJ lessons and learn from professional instructors in real-time.
+          When a lesson is live, you'll be able to watch and participate here.
         </p>
       </div>
     </div>
