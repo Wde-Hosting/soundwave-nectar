@@ -11,25 +11,23 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
     queryKey: ['stream-status'],
     queryFn: async () => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // Increased to 10 seconds
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       try {
-        // Try a GET request with range header to minimize data transfer
         const response = await fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
           method: 'GET',
           headers: {
             'Accept': '*/*',
-            'Range': 'bytes=0-0', // Request only first byte
+            'Range': 'bytes=0-0',
           },
           signal: controller.signal,
           cache: 'no-store',
         });
-        
+
         clearTimeout(timeoutId);
-        
         return response.status === 200 || response.status === 206;
       } catch (error) {
-        clearTimeout(timeoutId); // Make sure to clear timeout on error
+        clearTimeout(timeoutId);
         if (error instanceof Error && error.name === 'AbortError') {
           console.log("Request timed out, stream might be offline");
           return false;
@@ -37,9 +35,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         console.error("Error checking stream status:", error);
         return false;
       } finally {
-        controller.signal.addEventListener('abort', () => {
-          clearTimeout(timeoutId);
-        });
+        clearTimeout(timeoutId);
       }
     },
     refetchInterval: 5000,
