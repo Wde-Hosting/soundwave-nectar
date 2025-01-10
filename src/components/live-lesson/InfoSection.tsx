@@ -9,9 +9,11 @@ interface InfoSectionProps {
 const InfoSection = ({ isPlaying }: InfoSectionProps) => {
   const { data: streamStatus, error } = useQuery({
     queryKey: ['stream-status'],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 10000);
 
       try {
         const response = await fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
@@ -24,10 +26,8 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
           cache: 'no-store',
         });
 
-        clearTimeout(timeoutId);
         return response.status === 200 || response.status === 206;
       } catch (error) {
-        clearTimeout(timeoutId);
         if (error instanceof Error && error.name === 'AbortError') {
           console.log("Request timed out, stream might be offline");
           return false;
