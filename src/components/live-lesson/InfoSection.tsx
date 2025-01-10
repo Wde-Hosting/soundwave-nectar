@@ -19,22 +19,26 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       
       return settings?.value === 'online';
     },
-    refetchInterval: 10000,
+    refetchInterval: 5000, // Check every 5 seconds for more responsive updates
   });
 
+  const getStreamStatusBadge = () => {
+    if (error) return <Badge variant="destructive">Error</Badge>;
+    if (streamStatus) return <Badge variant="success">Live</Badge>;
+    return <Badge variant="secondary">Offline</Badge>;
+  };
+
   return (
-    <div className="mt-8 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Live Lesson Status</h2>
-        <Badge variant={streamStatus ? "success" : "destructive"}>
-          {streamStatus ? "Live Now" : "Offline"}
-        </Badge>
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <h2 className="text-2xl font-bold">Live Stream Status</h2>
+        {getStreamStatusBadge()}
       </div>
 
       {error && (
         <Alert variant="destructive">
           <AlertDescription>
-            Unable to check stream status. Please refresh.
+            Unable to check stream status. Please refresh the page.
           </AlertDescription>
         </Alert>
       )}
@@ -42,7 +46,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       {!streamStatus && !error && (
         <Alert>
           <AlertDescription>
-            No live lesson is currently streaming. Check back soon!
+            No live stream is currently active. Please check back soon!
           </AlertDescription>
         </Alert>
       )}
@@ -50,16 +54,17 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       {isPlaying && streamStatus && (
         <Alert>
           <AlertDescription>
-            Connected to live stream! Enjoy your lesson.
+            Successfully connected to live stream! Enjoy your session.
           </AlertDescription>
         </Alert>
       )}
 
       <div className="prose dark:prose-invert max-w-none">
-        <h3>About Live Lessons</h3>
+        <h3>About Live Broadcasting</h3>
         <p>
-          Join our interactive DJ lessons and learn from professional instructors in real-time.
-          When a lesson is live, you'll be able to watch and participate here.
+          Experience real-time DJ sessions and interactive music streaming. 
+          When a broadcast is live, you'll be able to listen and interact here.
+          The stream status is automatically checked every 5 seconds to ensure you're always up to date.
         </p>
       </div>
     </div>

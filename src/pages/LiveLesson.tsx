@@ -19,17 +19,20 @@ const LiveLesson = () => {
         const { data, error } = await supabase
           .from('settings')
           .select('value')
-          .eq('key', 'live_lesson_url')
+          .eq('key', 'live_stream_url')
           .maybeSingle();
 
         if (error) throw error;
         
+        // Set a default stream URL if none is found in settings
         setStreamUrl(data?.value || "http://160.226.161.31:8000/Soundmasterlive");
+        
+        console.log("Stream URL loaded:", data?.value);
       } catch (error) {
         console.error('Error fetching stream URL:', error);
         toast({
-          title: "Error",
-          description: "Could not load stream settings, using default URL",
+          title: "Stream Configuration Error",
+          description: "Using default stream URL",
           variant: "destructive",
         });
         setStreamUrl("http://160.226.161.31:8000/Soundmasterlive");
@@ -74,7 +77,7 @@ const LiveLesson = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Video className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold">Live Lesson</h1>
+            <h1 className="text-2xl font-bold">Live Stream</h1>
           </div>
           <ControlPanel
             isMuted={isMuted}
