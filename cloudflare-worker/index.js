@@ -21,10 +21,17 @@ export default {
       const response = await fetch(targetUrl, {
         method: request.method,
         headers: {
-          'User-Agent': request.headers.get('User-Agent') || 'Cloudflare Worker',
-          'Accept': '*/*',
+          'User-Agent': 'Mozilla/5.0 (compatible; Cloudflare-Worker)',
+          'Accept': 'audio/mpeg, */*',
           'Connection': 'keep-alive',
           'Icy-MetaData': '1',
+        },
+        cf: {
+          // Enable streaming responses
+          cacheTtl: 0,
+          cacheEverything: false,
+          minify: false,
+          mirage: false,
         },
       });
 
@@ -35,7 +42,9 @@ export default {
         headers: {
           ...corsHeaders,
           'Content-Type': response.headers.get('Content-Type') || 'audio/mpeg',
-          'Cache-Control': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
           'Connection': 'keep-alive',
         },
       });

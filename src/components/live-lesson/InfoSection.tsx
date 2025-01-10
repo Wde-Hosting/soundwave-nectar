@@ -11,15 +11,19 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
     queryKey: ['stream-status'],
     queryFn: async () => {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         const response = await fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
           method: 'GET',
           headers: {
             'Accept': 'audio/mpeg, */*',
           },
+          signal: controller.signal,
           cache: 'no-store',
         });
         
-        // Consider the stream available if we get a successful response
+        clearTimeout(timeoutId);
         return response.ok;
       } catch (error) {
         console.error("Error checking stream status:", error);

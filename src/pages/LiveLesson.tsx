@@ -14,13 +14,19 @@ const LiveLesson = () => {
   useEffect(() => {
     const checkStream = async () => {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         const response = await fetch(streamUrl, {
           method: 'GET',
           headers: {
             'Accept': 'audio/mpeg, */*',
           },
+          signal: controller.signal,
           cache: 'no-store',
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
           console.error('Stream not available:', response.status);
