@@ -17,39 +17,51 @@ export default {
         throw new Error('No target URL provided');
       }
 
-      // Forward the request to the target URL with specific headers for Icecast
-      const response = await fetch(targetUrl, {
-        method: request.method,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; Cloudflare-Worker)',
-          'Accept': 'audio/mpeg, */*',
-          'Connection': 'keep-alive',
-          'Icy-MetaData': '1',
-        },
-        cf: {
-          // Enable streaming responses
-          cacheTtl: 0,
-          cacheEverything: false,
-          minify: false,
-          mirage: false,
-        },
-      });
+      // Set a timeout for the fetch request
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      // Create a new response with CORS headers
-      const modifiedResponse = new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': response.headers.get('Content-Type') || 'audio/mpeg',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'Connection': 'keep-alive',
-        },
-      });
+      try {
+        // Forward the request to the target URL with specific headers for Icecast
+        const response = await fetch(targetUrl, {
+          method: request.method,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; Cloudflare-Worker)',
+            'Accept': 'audio/mpeg, */*',
+            'Connection': 'keep-alive',
+            'Icy-MetaData': '1',
+          },
+          signal: controller.signal,
+          cf: {
+            // Enable streaming responses
+            cacheTtl: 0,
+            cacheEverything: false,
+            minify: false,
+            mirage: false,
+          },
+        });
 
-      return modifiedResponse;
+        clearTimeout(timeout);
+
+        // Create a new response with CORS headers
+        const modifiedResponse = new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': response.headers.get('Content-Type') || 'audio/mpeg',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Connection': 'keep-alive',
+          },
+        });
+
+        return modifiedResponse;
+      } catch (fetchError) {
+        clearTimeout(timeout);
+        throw fetchError;
+      }
     } catch (error) {
       console.error('Proxy error:', error);
       return new Response(JSON.stringify({ error: error.message }), {

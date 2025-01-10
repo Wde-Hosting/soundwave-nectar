@@ -24,7 +24,9 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         });
         
         clearTimeout(timeoutId);
-        return response.ok;
+        
+        // Only consider it a success if we get a 200 response
+        return response.status === 200;
       } catch (error) {
         console.error("Error checking stream status:", error);
         return false;
