@@ -24,18 +24,23 @@ export default {
           'User-Agent': request.headers.get('User-Agent') || 'Cloudflare Worker',
           'Accept': '*/*',
           'Connection': 'keep-alive',
+          // Add Icecast specific headers
+          'Icy-MetaData': '1',
         },
       });
 
       // Create a new response with CORS headers
-      const modifiedResponse = new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': response.headers.get('Content-Type') || 'application/octet-stream',
-        },
-      });
+      const modifiedResponse = new Response(
+        request.method === 'HEAD' ? null : response.body,
+        {
+          status: response.status,
+          statusText: response.statusText,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': response.headers.get('Content-Type') || 'application/octet-stream',
+          },
+        }
+      );
 
       return modifiedResponse;
     } catch (error) {

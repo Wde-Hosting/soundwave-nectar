@@ -11,12 +11,15 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
     queryKey: ['stream-status'],
     queryFn: async () => {
       try {
+        // Try to fetch stream metadata instead of HEAD request
         const response = await fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
-          method: 'HEAD',
+          method: 'GET',
           headers: {
             'Accept': '*/*',
           },
         });
+        
+        // If we get any response, consider the stream as available
         return response.ok;
       } catch (error) {
         console.error("Error checking stream status:", error);

@@ -15,7 +15,7 @@ const LiveLesson = () => {
     const checkStream = async () => {
       try {
         const response = await fetch(streamUrl, {
-          method: 'HEAD',
+          method: 'GET',
           headers: {
             'Accept': '*/*',
           },
