@@ -24,31 +24,30 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         return false;
       }
     },
-    refetchInterval: 30000, // Check every 30 seconds
-    retry: 2, // Retry failed requests twice
+    refetchInterval: 10000, // Check every 10 seconds for more responsive updates
   });
 
   return (
     <div className="mt-8 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Live Lesson Status</h2>
-        <Badge variant={streamStatus ? "secondary" : "destructive"}>
-          {streamStatus ? "Stream Available" : "Stream Offline"}
+        <Badge variant={streamStatus ? "success" : "destructive"}>
+          {streamStatus ? "Live Now" : "Offline"}
         </Badge>
       </div>
 
       {error && (
         <Alert variant="destructive">
           <AlertDescription>
-            Unable to check stream status. Please refresh the page or contact support if the issue persists.
+            Connection error. Please refresh.
           </AlertDescription>
         </Alert>
       )}
 
       {!streamStatus && !error && (
-        <Alert variant="destructive">
+        <Alert>
           <AlertDescription>
-            No stream is currently live. Please check back later or contact support if you believe this is an error.
+            No live lesson right now. Check back soon!
           </AlertDescription>
         </Alert>
       )}
@@ -56,7 +55,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       {isPlaying && streamStatus && (
         <Alert>
           <AlertDescription>
-            You are currently listening to a live lesson. Enjoy your session!
+            You're connected! Enjoying the lesson.
           </AlertDescription>
         </Alert>
       )}
@@ -64,8 +63,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
       <div className="prose dark:prose-invert max-w-none">
         <h3>About Live Lessons</h3>
         <p>
-          Join our interactive live lessons where you can learn from professional DJs
-          and sound engineers. Get real-time feedback and improve your skills.
+          Join our interactive DJ lessons. Learn from pros!
         </p>
       </div>
     </div>
