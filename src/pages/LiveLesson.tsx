@@ -17,8 +17,9 @@ const LiveLesson = () => {
         const response = await fetch(streamUrl, {
           method: 'GET',
           headers: {
-            'Accept': '*/*',
+            'Accept': 'audio/mpeg, */*',
           },
+          cache: 'no-store',
         });
         
         if (!response.ok) {
