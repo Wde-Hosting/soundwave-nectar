@@ -15,9 +15,9 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
         const response = await fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
-          method: 'GET',
+          method: 'HEAD',
           headers: {
-            'Accept': 'audio/mpeg, */*',
+            'Accept': '*/*',
           },
           signal: controller.signal,
           cache: 'no-store',
@@ -25,7 +25,6 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         
         clearTimeout(timeoutId);
         
-        // Only consider it a success if we get a 200 response
         return response.status === 200;
       } catch (error) {
         console.error("Error checking stream status:", error);

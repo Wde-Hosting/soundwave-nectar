@@ -5,7 +5,10 @@ export default {
     // Handle CORS preflight requests
     if (request.method === 'OPTIONS') {
       return new Response(null, {
-        headers: corsHeaders
+        headers: {
+          ...corsHeaders,
+          'Access-Control-Max-Age': '86400',
+        }
       });
     }
 
@@ -27,13 +30,12 @@ export default {
           method: request.method,
           headers: {
             'User-Agent': 'Mozilla/5.0 (compatible; Cloudflare-Worker)',
-            'Accept': 'audio/mpeg, */*',
+            'Accept': '*/*',
             'Connection': 'keep-alive',
             'Icy-MetaData': '1',
           },
           signal: controller.signal,
           cf: {
-            // Enable streaming responses
             cacheTtl: 0,
             cacheEverything: false,
             minify: false,
@@ -54,6 +56,7 @@ export default {
             'Pragma': 'no-cache',
             'Expires': '0',
             'Connection': 'keep-alive',
+            'Access-Control-Expose-Headers': '*',
           },
         });
 
