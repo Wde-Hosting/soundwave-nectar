@@ -9,7 +9,7 @@ const LiveLesson = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [streamUrl, setStreamUrl] = useState<string>("http://160.226.161.31:8000/Soundmasterlive");
+  const [streamUrl, setStreamUrl] = useState<string>("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive");
 
   useEffect(() => {
     // Check stream availability on component mount

@@ -1,7 +1,6 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface InfoSectionProps {
   isPlaying: boolean;
@@ -12,7 +11,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
     queryKey: ['stream-status'],
     queryFn: async () => {
       try {
-        const response = await fetch("http://160.226.161.31:8000/Soundmasterlive", {
+        const response = await fetch("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive", {
           method: 'HEAD'
         });
         return response.ok;
