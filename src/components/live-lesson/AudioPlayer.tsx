@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AudioPlayerProps {
   streamUrl: string | null;
@@ -13,25 +14,31 @@ const AudioPlayer = ({ streamUrl, isPlaying, isMuted, onPlayStateChange }: Audio
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !streamUrl) return;
 
-    if (isPlaying) {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("Playback error:", error);
-          onPlayStateChange(false);
-          toast({
-            title: "Playback Error",
-            description: "Unable to play the stream. Please try again.",
-            variant: "destructive",
-          });
+    const handlePlay = async () => {
+      try {
+        await audio.play();
+        console.log("Stream playback started");
+        onPlayStateChange(true);
+      } catch (error) {
+        console.error("Playback failed:", error);
+        onPlayStateChange(false);
+        toast({
+          title: "Playback Error",
+          description: "Unable to play the stream. Please try again.",
+          variant: "destructive",
         });
       }
+    };
+
+    if (isPlaying) {
+      handlePlay();
     } else {
       audio.pause();
+      onPlayStateChange(false);
     }
-  }, [isPlaying, onPlayStateChange]);
+  }, [isPlaying, streamUrl, onPlayStateChange]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -57,22 +64,30 @@ const AudioPlayer = ({ streamUrl, isPlaying, isMuted, onPlayStateChange }: Audio
     });
   };
 
+  if (!streamUrl) {
+    return (
+      <Alert>
+        <AlertDescription>
+          No stream URL configured. Please check the settings.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-xl bg-black">
-      {streamUrl && (
-        <audio
-          ref={audioRef}
-          src={streamUrl}
-          controls
-          className="w-full h-full"
-          onCanPlay={handleCanPlay}
-          onError={handleError}
-          onPause={() => onPlayStateChange(false)}
-          onPlay={() => onPlayStateChange(true)}
-        >
-          Your browser does not support the audio element.
-        </audio>
-      )}
+      <audio
+        ref={audioRef}
+        src={streamUrl}
+        controls
+        className="w-full h-full"
+        onCanPlay={handleCanPlay}
+        onError={handleError}
+        onPause={() => onPlayStateChange(false)}
+        onPlay={() => onPlayStateChange(true)}
+      >
+        Your browser does not support the audio element.
+      </audio>
     </div>
   );
 };

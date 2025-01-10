@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Video } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import AudioPlayer from "@/components/live-lesson/AudioPlayer";
 import ControlPanel from "@/components/live-lesson/ControlPanel";
 import InfoSection from "@/components/live-lesson/InfoSection";
@@ -10,39 +9,33 @@ const LiveLesson = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [streamUrl, setStreamUrl] = useState<string | null>(null);
+  const [streamUrl, setStreamUrl] = useState<string>("http://160.226.161.31:8000/Soundmasterlive");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStreamUrl = async () => {
+    const checkStreamAvailability = async () => {
       try {
-        const { data, error } = await supabase
-          .from('settings')
-          .select('value')
-          .eq('key', 'live_stream_url')
-          .maybeSingle();
-
-        if (error) throw error;
-        
-        // Set a default stream URL if none is found in settings
-        setStreamUrl(data?.value || "http://160.226.161.31:8000/Soundmasterlive");
-        
-        console.log("Stream URL loaded:", data?.value);
+        const response = await fetch(streamUrl, { method: 'HEAD' });
+        if (!response.ok) {
+          console.error('Stream not available:', response.status);
+          toast({
+            title: "Stream Unavailable",
+            description: "The live stream is currently offline. Please try again later.",
+            variant: "destructive",
+          });
+        }
       } catch (error) {
-        console.error('Error fetching stream URL:', error);
-        toast({
-          title: "Stream Configuration Error",
-          description: "Using default stream URL",
-          variant: "destructive",
-        });
-        setStreamUrl("http://160.226.161.31:8000/Soundmasterlive");
+        console.error('Error checking stream:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchStreamUrl();
-  }, []);
+    checkStreamAvailability();
+    // Check stream availability every 30 seconds
+    const interval = setInterval(checkStreamAvailability, 30000);
+    return () => clearInterval(interval);
+  }, [streamUrl]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
