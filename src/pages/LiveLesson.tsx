@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import StreamControls from "@/components/live-stream/StreamControls";
 import StreamStats from "@/components/live-stream/StreamStats";
+import InfoSection from "@/components/live-lesson/InfoSection";
 import { toast } from "@/hooks/use-toast";
 
 const LiveLesson = () => {
@@ -11,64 +12,9 @@ const LiveLesson = () => {
   const [error, setError] = useState<string | null>(null);
   const [quality, setQuality] = useState('auto');
   const [isChatOpen, setIsChatOpen] = useState(true);
-  const [healthStatus, setHealthStatus] = useState({
-    bitrate: 0,
-    fps: 0,
-    buffering: false,
-    latency: 0,
-    dropped_frames: 0,
-    viewCount: 0
-  });
-  const [streamStats, setStreamStats] = useState({
-    duration: 0,
-    peakViewers: 0,
-    qualityChanges: 0,
-    bufferingEvents: 0,
-    startTime: new Date()
-  });
-
-  const baseStreamUrl = "https://player.kick.com/soundmasterlive";
-  const streamUrl = `${baseStreamUrl}${quality !== 'auto' ? `?quality=${quality}` : ''}`;
-  const chatUrl = "https://kick.com/soundmasterlive/chatroom";
-
-  // Stream Health Monitoring
-  const monitorStreamHealth = useCallback(() => {
-    const interval = setInterval(() => {
-      // Simulate stream health metrics (replace with actual metrics in production)
-      const newHealth = {
-        bitrate: Math.floor(Math.random() * 5000) + 3000,
-        fps: Math.floor(Math.random() * 10) + 50,
-        buffering: Math.random() > 0.95,
-        latency: Math.floor(Math.random() * 1000),
-        dropped_frames: Math.floor(Math.random() * 10),
-        viewCount: Math.floor(Math.random() * 1000)
-      };
-
-      setHealthStatus(newHealth);
-      
-      setStreamStats(prev => ({
-        ...prev,
-        duration: (new Date().getTime() - prev.startTime.getTime()) / 1000,
-        bufferingEvents: prev.bufferingEvents + (newHealth.buffering ? 1 : 0),
-        peakViewers: Math.max(prev.peakViewers, newHealth.viewCount)
-      }));
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const cleanup = monitorStreamHealth();
-    return () => cleanup();
-  }, [monitorStreamHealth]);
 
   const handleQualityChange = (newQuality: string) => {
-    setIsLoading(true);
     setQuality(newQuality);
-    setStreamStats(prev => ({
-      ...prev,
-      qualityChanges: prev.qualityChanges + 1
-    }));
     toast({
       title: "Quality Changed",
       description: `Stream quality set to ${newQuality}`,
@@ -97,10 +43,6 @@ const LiveLesson = () => {
   const handleRetry = () => {
     setIsLoading(true);
     setError(null);
-    setStreamStats(prev => ({
-      ...prev,
-      startTime: new Date()
-    }));
     toast({
       title: "Retrying Connection",
       description: "Attempting to reconnect to the stream...",
@@ -115,8 +57,8 @@ const LiveLesson = () => {
         isChatOpen={isChatOpen}
         onToggleChat={() => setIsChatOpen(!isChatOpen)}
         healthStatus={{
-          buffering: healthStatus.buffering,
-          viewCount: healthStatus.viewCount
+          buffering: false,
+          viewCount: 0
         }}
       />
 
@@ -148,7 +90,7 @@ const LiveLesson = () => {
 
           <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
             <iframe
-              src={streamUrl}
+              src="https://player.kick.com/soundmasterlive"
               className={`absolute top-0 left-0 w-full h-full rounded-lg ${
                 isLoading ? 'hidden' : 'block'
               }`}
@@ -161,8 +103,17 @@ const LiveLesson = () => {
           </div>
 
           <StreamStats
-            healthStatus={healthStatus}
-            streamStats={streamStats}
+            healthStatus={{
+              bitrate: 0,
+              fps: 0,
+              latency: 0
+            }}
+            streamStats={{
+              duration: 0,
+              peakViewers: 0,
+              qualityChanges: 0,
+              bufferingEvents: 0
+            }}
           />
         </div>
 
@@ -170,7 +121,7 @@ const LiveLesson = () => {
           <div className="w-96">
             <div className="relative w-full h-[600px] bg-background rounded-lg border">
               <iframe
-                src={chatUrl}
+                src="https://kick.com/soundmasterlive/chatroom"
                 className="w-full h-full rounded-lg"
                 frameBorder="0"
               />
@@ -178,6 +129,8 @@ const LiveLesson = () => {
           </div>
         )}
       </div>
+
+      <InfoSection />
     </div>
   );
 };
