@@ -1,50 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Video } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import AudioPlayer from "@/components/live-lesson/AudioPlayer";
-import ControlPanel from "@/components/live-lesson/ControlPanel";
 import InfoSection from "@/components/live-lesson/InfoSection";
+import { Card } from "@/components/ui/card";
 
 const LiveLesson = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [streamUrl, setStreamUrl] = useState<string>("https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive");
-
-  useEffect(() => {
-    const checkStream = async () => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        const response = await fetch(streamUrl, {
-          method: 'GET',
-          headers: {
-            'Accept': 'audio/mpeg, */*',
-          },
-          signal: controller.signal,
-          cache: 'no-store',
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          console.error('Stream not available:', response.status);
-          toast({
-            title: "Stream Unavailable",
-            description: "The live stream is currently offline. Please try again later.",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error('Error checking stream:', error);
-      }
-    };
-
-    checkStream();
-    const interval = setInterval(checkStream, 30000);
-    return () => clearInterval(interval);
-  }, [streamUrl]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -56,15 +17,6 @@ const LiveLesson = () => {
     }
   };
 
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
@@ -73,22 +25,22 @@ const LiveLesson = () => {
             <Video className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold">Live Stream</h1>
           </div>
-          <ControlPanel
-            isMuted={isMuted}
-            isFullscreen={isFullscreen}
-            onMuteToggle={() => setIsMuted(!isMuted)}
-            onFullscreenToggle={toggleFullscreen}
-          />
         </div>
 
-        <AudioPlayer
-          streamUrl={streamUrl}
-          isPlaying={isPlaying}
-          isMuted={isMuted}
-          onPlayStateChange={setIsPlaying}
-        />
+        <Card className="w-full overflow-hidden rounded-lg shadow-lg">
+          <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+            <iframe
+              src="https://player.kick.com/soundmasterlive"
+              className="absolute top-0 left-0 w-full h-full"
+              frameBorder="0"
+              scrolling="no"
+              allowFullScreen={true}
+              title="Soundmaster Live Stream"
+            />
+          </div>
+        </Card>
 
-        <InfoSection isPlaying={isPlaying} />
+        <InfoSection />
       </div>
     </div>
   );

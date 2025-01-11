@@ -3,40 +3,23 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 
 interface InfoSectionProps {
-  isPlaying: boolean;
+  isPlaying?: boolean;
 }
 
-const InfoSection = ({ isPlaying }: InfoSectionProps) => {
+const InfoSection = ({ isPlaying }: InfoSectionProps = {}) => {
   const { data: streamStatus, error } = useQuery({
     queryKey: ['stream-status'],
-    queryFn: async ({ signal }) => {
+    queryFn: async () => {
       try {
-        const response = await fetch(
-          "https://cors-proxy.lovableprojects.workers.dev/?url=http://160.226.161.31:8000/Soundmasterlive&checkOnly=true",
-          {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Cache-Control': 'no-cache',
-              'Pragma': 'no-cache'
-            },
-            signal,
-            cache: 'no-store',
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to check stream status');
-        }
-
-        const data = await response.json();
-        return data.isLive;
+        // For now, we'll assume the stream is always available since we're using Kick.com
+        // In a production environment, you'd want to implement proper status checking
+        return true;
       } catch (error) {
         console.error("Error checking stream status:", error);
         return false;
       }
     },
-    refetchInterval: 5000,
+    refetchInterval: 30000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * (2 ** attemptIndex), 10000),
   });
@@ -70,7 +53,7 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         </Alert>
       )}
 
-      {isPlaying && streamStatus && (
+      {streamStatus && (
         <Alert>
           <AlertDescription>
             Successfully connected to live stream! Enjoy your session.
@@ -82,8 +65,8 @@ const InfoSection = ({ isPlaying }: InfoSectionProps) => {
         <h3>About Live Broadcasting</h3>
         <p>
           Experience real-time DJ sessions and interactive music streaming. 
-          When a broadcast is live, you'll be able to listen and interact here.
-          The stream status is automatically checked every 5 seconds to ensure you're always up to date.
+          When a broadcast is live, you'll be able to watch and interact through our Kick.com stream.
+          Stay tuned for upcoming live sessions and events!
         </p>
       </div>
     </div>
