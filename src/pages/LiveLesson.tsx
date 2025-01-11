@@ -90,7 +90,7 @@ const LiveLesson = () => {
 
           <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
             <iframe
-              src="https://player.kick.com/soundmasterlive"
+              src="https://kick.com/soundmasterlive?hide_chat=true&muted=true&autoplay=true"
               className={`absolute top-0 left-0 w-full h-full rounded-lg ${
                 isLoading ? 'hidden' : 'block'
               }`}
@@ -99,6 +99,7 @@ const LiveLesson = () => {
               allowFullScreen={true}
               onLoad={handleIframeLoad}
               onError={handleIframeError}
+              allow="autoplay; fullscreen"
             />
           </div>
 
@@ -124,6 +125,7 @@ const LiveLesson = () => {
                 src="https://kick.com/soundmasterlive/chatroom"
                 className="w-full h-full rounded-lg"
                 frameBorder="0"
+                allow="autoplay; fullscreen"
               />
             </div>
           </div>
