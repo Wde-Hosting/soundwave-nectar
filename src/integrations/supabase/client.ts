@@ -14,10 +14,31 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'apikey': supabaseAnonKey
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'Content-Type': 'application/json'
     }
   },
   db: {
     schema: 'public'
   }
 });
+
+// Add error handling for fetch operations
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+  try {
+    const response = await originalFetch(...args);
+    if (!response.ok) {
+      console.error('Fetch error:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: args[0]
+      });
+    }
+    return response;
+  } catch (error) {
+    console.error('Network error:', error);
+    throw error;
+  }
+};
