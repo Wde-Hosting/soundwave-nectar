@@ -22,6 +22,7 @@ const LiveLesson = () => {
   };
 
   const handleIframeLoad = () => {
+    console.log("Stream iframe loaded successfully");
     setIsLoading(false);
     setError(null);
     toast({
@@ -31,6 +32,7 @@ const LiveLesson = () => {
   };
 
   const handleIframeError = () => {
+    console.error("Failed to load stream iframe");
     setIsLoading(false);
     setError("Failed to load the live stream. Please try refreshing the page.");
     toast({
@@ -41,6 +43,7 @@ const LiveLesson = () => {
   };
 
   const handleRetry = () => {
+    console.log("Retrying stream connection");
     setIsLoading(true);
     setError(null);
     toast({
@@ -90,16 +93,18 @@ const LiveLesson = () => {
 
           <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
             <iframe
-              src="https://kick.com/soundmasterlive?hide_chat=true&muted=true&autoplay=true"
+              src="https://kick.com/soundmasterlive/embed"
               className={`absolute top-0 left-0 w-full h-full rounded-lg ${
                 isLoading ? 'hidden' : 'block'
               }`}
+              title="Kick.com Live Stream"
               frameBorder="0"
               scrolling="no"
               allowFullScreen={true}
               onLoad={handleIframeLoad}
               onError={handleIframeError}
-              allow="autoplay; fullscreen"
+              allow="autoplay; fullscreen; picture-in-picture"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
             />
           </div>
 
@@ -122,10 +127,13 @@ const LiveLesson = () => {
           <div className="w-96">
             <div className="relative w-full h-[600px] bg-background rounded-lg border">
               <iframe
-                src="https://kick.com/soundmasterlive/chatroom"
+                src="https://kick.com/soundmasterlive/chat-embed"
+                title="Kick.com Chat"
                 className="w-full h-full rounded-lg"
                 frameBorder="0"
+                scrolling="yes"
                 allow="autoplay; fullscreen"
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
               />
             </div>
           </div>
