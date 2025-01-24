@@ -21,10 +21,13 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   },
   db: {
     schema: 'public'
-  }
+  },
+  // Add retry configuration
+  retryAttempts: 3,
+  retryInterval: 1000
 });
 
-// Add error handling for fetch operations
+// Add better error handling for fetch operations
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
   try {
@@ -39,6 +42,18 @@ window.fetch = async (...args) => {
     return response;
   } catch (error) {
     console.error('Network error:', error);
+    // Retry logic for network errors
+    for (let i = 0; i < 3; i++) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        const retryResponse = await originalFetch(...args);
+        if (retryResponse.ok) {
+          return retryResponse;
+        }
+      } catch (retryError) {
+        console.error(`Retry ${i + 1} failed:`, retryError);
+      }
+    }
     throw error;
   }
 };
