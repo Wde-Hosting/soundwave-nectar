@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import SongCard from './songs/SongCard';
 import EmptySongList from './songs/EmptySongList';
+import type { Song } from '@/types/database.types';
 
 interface SongListProps {
   searchQuery: string;
@@ -29,7 +30,7 @@ const SongList = ({ searchQuery }: SongListProps) => {
         throw error;
       }
 
-      return data || [];
+      return (data || []) as Song[];
     },
   });
 
