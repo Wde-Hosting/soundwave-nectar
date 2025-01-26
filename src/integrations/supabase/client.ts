@@ -14,31 +14,46 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'apikey': supabaseAnonKey,
-      'Authorization': `Bearer ${supabaseAnonKey}`,
-      'Content-Type': 'application/json'
-    }
+    },
   },
   db: {
     schema: 'public'
   }
 });
 
-// Add error handling for fetch operations
+// Add error handling and retry logic for fetch operations
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
-  try {
-    const response = await originalFetch(...args);
-    if (!response.ok) {
-      console.error('Fetch error:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: args[0]
-      });
+  const maxRetries = 3;
+  const baseDelay = 1000; // 1 second
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await originalFetch(...args);
+      
+      // Log failed requests for debugging
+      if (!response.ok) {
+        console.error('Fetch error:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: args[0]
+        });
+      }
+      
+      return response;
+    } catch (error) {
+      console.error(`Attempt ${attempt + 1} failed:`, error);
+      
+      // If this is the last attempt, throw the error
+      if (attempt === maxRetries - 1) {
+        throw error;
+      }
+      
+      // Wait before retrying, with exponential backoff
+      await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt)));
     }
-    return response;
-  } catch (error) {
-    console.error('Network error:', error);
-    throw error;
   }
+
+  // This should never be reached due to the throw in the last iteration
+  throw new Error('Failed to fetch after all retry attempts');
 };
