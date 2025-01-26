@@ -16,8 +16,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'Authorization': `Bearer ${supabaseAnonKey}`,
-      'apikey': supabaseAnonKey,
     },
   },
   db: {
@@ -42,9 +40,10 @@ window.fetch = async (...args) => {
             ...requestInit.headers,
             'Authorization': `Bearer ${supabaseAnonKey}`,
             'apikey': supabaseAnonKey,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          credentials: 'include'
+          mode: 'cors',
+          credentials: 'same-origin'
         };
       }
 
