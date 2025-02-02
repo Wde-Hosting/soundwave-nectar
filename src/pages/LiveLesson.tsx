@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, ExternalLink } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import StreamControls from "@/components/live-stream/StreamControls";
@@ -12,6 +12,7 @@ const LiveLesson = () => {
   const [error, setError] = useState<string | null>(null);
   const [quality, setQuality] = useState('auto');
   const [isChatOpen, setIsChatOpen] = useState(true);
+  const streamUrl = "https://kick.com/soundmasterlive";
 
   const handleQualityChange = (newQuality: string) => {
     setQuality(newQuality);
@@ -34,21 +35,14 @@ const LiveLesson = () => {
   const handleIframeError = () => {
     console.error("Failed to load stream iframe");
     setIsLoading(false);
-    setError("Failed to load the live stream. Please try refreshing the page.");
-    toast({
-      variant: "destructive",
-      title: "Stream Error",
-      description: "Failed to connect to the live stream",
-    });
+    setError("Unable to embed the live stream due to platform restrictions.");
   };
 
-  const handleRetry = () => {
-    console.log("Retrying stream connection");
-    setIsLoading(true);
-    setError(null);
+  const openStreamInNewTab = () => {
+    window.open(streamUrl, '_blank', 'noopener,noreferrer');
     toast({
-      title: "Retrying Connection",
-      description: "Attempting to reconnect to the stream...",
+      title: "Opening Stream",
+      description: "The live stream will open in a new tab",
     });
   };
 
@@ -79,25 +73,27 @@ const LiveLesson = () => {
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Stream Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-              <Button 
-                onClick={handleRetry}
-                className="mt-4"
-                variant="destructive"
-              >
-                Retry Connection
-              </Button>
+              <AlertTitle>Stream Embedding Restricted</AlertTitle>
+              <AlertDescription className="space-y-4">
+                <p>{error}</p>
+                <Button 
+                  onClick={openStreamInNewTab}
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open Stream in New Tab
+                </Button>
+              </AlertDescription>
             </Alert>
           )}
 
           <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
             <iframe
-              src="https://kick.com/soundmasterlive/embed"
+              src={`${streamUrl}/embed`}
               className={`absolute top-0 left-0 w-full h-full rounded-lg ${
                 isLoading ? 'hidden' : 'block'
               }`}
-              title="Kick.com Live Stream"
+              title="Live Stream"
               frameBorder="0"
               scrolling="no"
               allowFullScreen={true}
@@ -127,8 +123,8 @@ const LiveLesson = () => {
           <div className="w-96">
             <div className="relative w-full h-[600px] bg-background rounded-lg border">
               <iframe
-                src="https://kick.com/soundmasterlive/chat-embed"
-                title="Kick.com Chat"
+                src={`${streamUrl}/chat-embed`}
+                title="Live Chat"
                 className="w-full h-full rounded-lg"
                 frameBorder="0"
                 scrolling="yes"
