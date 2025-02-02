@@ -28,9 +28,7 @@ interface DatabaseProfile {
   is_admin: boolean | null;
   created_at: string;
   avatar_url: string | null;
-  auth_users?: {
-    email: string | null;
-  }[] | null;
+  email?: string | null;
 }
 
 const UserManagement = () => {
@@ -40,15 +38,14 @@ const UserManagement = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: profiles, error } = await supabase
         .from("profiles")
         .select(`
           id,
           username,
           is_admin,
           created_at,
-          avatar_url,
-          auth_users:auth.users(email)
+          avatar_url
         `)
         .order("created_at", { ascending: false });
 
@@ -61,17 +58,19 @@ const UserManagement = () => {
         throw error;
       }
 
-      // Transform the data to match the User interface
-      const transformedData = (data as DatabaseProfile[]).map((profile) => ({
-        id: profile.id,
-        username: profile.username,
-        email: profile.auth_users?.[0]?.email ?? null,
-        is_admin: profile.is_admin ?? false,
-        created_at: profile.created_at,
-        avatar_url: profile.avatar_url,
-      }));
+      // Get emails from auth.users table
+      const { data: authUsers } = await supabase.auth.admin.listUsers();
+      
+      // Combine profile data with auth user emails
+      const transformedData = profiles.map((profile) => {
+        const authUser = authUsers?.users.find(user => user.id === profile.id);
+        return {
+          ...profile,
+          email: authUser?.email || null,
+        };
+      });
 
-      return transformedData as User[];
+      return transformedData as DatabaseProfile[];
     },
   });
 
