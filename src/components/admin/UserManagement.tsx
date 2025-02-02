@@ -22,13 +22,15 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { Loader2, Search, UserX, Shield, ShieldOff } from "lucide-react";
 
-interface Profile {
+interface DatabaseProfile {
   id: string;
   username: string | null;
   is_admin: boolean | null;
   created_at: string;
   avatar_url: string | null;
-  auth_users?: Array<{ email: string | null }>;
+  auth_users?: {
+    email: string | null;
+  }[] | null;
 }
 
 const UserManagement = () => {
@@ -46,9 +48,7 @@ const UserManagement = () => {
           is_admin,
           created_at,
           avatar_url,
-          auth_users (
-            email
-          )
+          auth_users:auth.users(email)
         `)
         .order("created_at", { ascending: false });
 
@@ -62,9 +62,13 @@ const UserManagement = () => {
       }
 
       // Transform the data to match the User interface
-      const transformedData = (data as Profile[]).map((profile) => ({
-        ...profile,
-        email: profile.auth_users?.[0]?.email,
+      const transformedData = (data as DatabaseProfile[]).map((profile) => ({
+        id: profile.id,
+        username: profile.username,
+        email: profile.auth_users?.[0]?.email ?? null,
+        is_admin: profile.is_admin ?? false,
+        created_at: profile.created_at,
+        avatar_url: profile.avatar_url,
       }));
 
       return transformedData as User[];
