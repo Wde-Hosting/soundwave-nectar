@@ -22,6 +22,15 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { Loader2, Search, UserX, Shield, ShieldOff } from "lucide-react";
 
+interface Profile {
+  id: string;
+  username: string | null;
+  is_admin: boolean | null;
+  created_at: string;
+  avatar_url: string | null;
+  auth_users?: Array<{ email: string | null }>;
+}
+
 const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
@@ -53,7 +62,7 @@ const UserManagement = () => {
       }
 
       // Transform the data to match the User interface
-      const transformedData = data.map((profile: any) => ({
+      const transformedData = (data as Profile[]).map((profile) => ({
         ...profile,
         email: profile.auth_users?.[0]?.email,
       }));
