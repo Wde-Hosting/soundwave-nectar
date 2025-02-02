@@ -48,7 +48,7 @@ const UserManagement = () => {
           is_admin,
           created_at,
           avatar_url,
-          auth_users:auth.users!profiles_id_fkey(email)
+          auth_users:auth.users(email)
         `)
         .order("created_at", { ascending: false });
 
@@ -165,11 +165,7 @@ const UserManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users?.filter(
-                  (user) =>
-                    user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-                )?.map((user) => (
+                {filteredUsers?.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>{user.username || "N/A"}</TableCell>
                     <TableCell>{user.email || "N/A"}</TableCell>
