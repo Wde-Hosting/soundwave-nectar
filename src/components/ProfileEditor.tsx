@@ -38,10 +38,10 @@ const ProfileEditor = () => {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as Profile;
+      return data as Profile | null;
     },
   });
 
@@ -52,7 +52,10 @@ const ProfileEditor = () => {
 
       const { error } = await supabase
         .from("profiles")
-        .update({ username: newUsername })
+        .upsert({ 
+          id: user.id,
+          username: newUsername,
+        })
         .eq("id", user.id);
 
       if (error) throw error;
