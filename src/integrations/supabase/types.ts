@@ -9,7 +9,183 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          created_at: string
+          details: string | null
+          event_date: string
+          event_type: string
+          id: string
+          status: string | null
+          time: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          status?: string | null
+          time?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          status?: string | null
+          time?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          image_url: string | null
+          location: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          is_admin: boolean | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          is_admin?: boolean | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          is_admin?: boolean | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
+      songs: {
+        Row: {
+          album: string | null
+          artist: string
+          created_at: string
+          genre: string | null
+          id: string
+          is_karaoke: boolean | null
+          title: string
+          url: string | null
+          user_id: string | null
+          year: number | null
+        }
+        Insert: {
+          album?: string | null
+          artist: string
+          created_at?: string
+          genre?: string | null
+          id?: string
+          is_karaoke?: boolean | null
+          title: string
+          url?: string | null
+          user_id?: string | null
+          year?: number | null
+        }
+        Update: {
+          album?: string | null
+          artist?: string
+          created_at?: string
+          genre?: string | null
+          id?: string
+          is_karaoke?: boolean | null
+          title?: string
+          url?: string | null
+          user_id?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
