@@ -44,15 +44,22 @@ const UserManagement = () => {
     queryKey: ["users"],
     queryFn: async () => {
       try {
+        // First, get all auth users
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          toast({
+            title: "Error fetching users",
+            description: authError.message,
+            variant: "destructive",
+          });
+          throw authError;
+        }
+
+        // Then get all profiles
         const { data: profiles, error: profilesError } = await supabase
           .from("profiles")
-          .select(`
-            id,
-            username,
-            is_admin,
-            created_at,
-            avatar_url
-          `)
+          .select("*")
           .order("created_at", { ascending: false });
 
         if (profilesError) {
@@ -64,25 +71,32 @@ const UserManagement = () => {
           throw profilesError;
         }
 
-        if (!profiles) {
-          return [];
+        // Create missing profiles for users that don't have one
+        const existingProfileIds = new Set(profiles?.map(p => p.id) || []);
+        const missingProfiles = authUsers?.users?.filter(user => !existingProfileIds.has(user.id)) || [];
+
+        for (const user of missingProfiles) {
+          const { error: createError } = await supabase
+            .from("profiles")
+            .insert({
+              id: user.id,
+              username: user.email?.split('@')[0] || null,
+              is_admin: false
+            });
+
+          if (createError) {
+            console.error("Error creating profile for user:", user.id, createError);
+          }
         }
 
-        // Get emails from auth.users table
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-        
-        if (authError) {
-          toast({
-            title: "Error fetching user emails",
-            description: authError.message,
-            variant: "destructive",
-          });
-          throw authError;
-        }
+        // Combine all profiles with auth user data
+        const { data: updatedProfiles } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-        // Combine profile data with auth user emails
-        const transformedData = profiles.map((profile) => {
-          const authUser = authUsers?.users?.find((user: AuthUser) => user.id === profile.id);
+        const transformedData = (updatedProfiles || []).map((profile) => {
+          const authUser = authUsers?.users?.find((user) => user.id === profile.id);
           return {
             ...profile,
             email: authUser?.email || null,
@@ -100,18 +114,12 @@ const UserManagement = () => {
   const toggleAdminMutation = useMutation<void, Error, { userId: string; isAdmin: boolean }>({
     mutationFn: async ({ userId, isAdmin }) => {
       try {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('profiles')
           .update({ is_admin: isAdmin })
-          .eq('id', userId)
-          .select()
-          .maybeSingle();
+          .eq('id', userId);
 
         if (error) throw error;
-        
-        if (!data) {
-          throw new Error(`No profile found for user ID: ${userId}`);
-        }
       } catch (error: any) {
         console.error("Error in toggle admin mutation:", error);
         throw error;
@@ -136,18 +144,12 @@ const UserManagement = () => {
   const deleteUserMutation = useMutation<void, Error, string>({
     mutationFn: async (userId: string) => {
       try {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from("profiles")
           .delete()
-          .eq("id", userId)
-          .select()
-          .maybeSingle();
+          .eq("id", userId);
 
         if (error) throw error;
-        
-        if (!data) {
-          throw new Error(`No profile found for user ID: ${userId}`);
-        }
       } catch (error: any) {
         console.error("Error in delete user mutation:", error);
         throw error;
