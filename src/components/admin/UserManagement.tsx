@@ -79,12 +79,12 @@ const UserManagement = () => {
     },
   });
 
-  const toggleAdminMutation = useMutation({
-    mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
-      const { error } = await supabase.rpc('set_admin_status', {
-        user_id: userId,
-        is_admin: isAdmin,
-      });
+  const toggleAdminMutation = useMutation<void, Error, { userId: string; isAdmin: boolean }>({
+    mutationFn: async ({ userId, isAdmin }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_admin: isAdmin })
+        .eq('id', userId);
 
       if (error) throw error;
     },
