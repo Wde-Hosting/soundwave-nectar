@@ -104,7 +104,7 @@ const UserManagement = () => {
     },
   });
 
-  const deleteUserMutation = useMutation({
+  const deleteUserMutation = useMutation<void, Error, string>({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
         .from("profiles")
