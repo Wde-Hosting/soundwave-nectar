@@ -34,6 +34,7 @@ interface DatabaseProfile {
 interface AuthUser {
   id: string;
   email?: string | null;
+  created_at?: string;
 }
 
 const UserManagement = () => {
@@ -45,7 +46,7 @@ const UserManagement = () => {
     queryFn: async () => {
       try {
         // First, get all auth users
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
         
         if (authError) {
           toast({
@@ -55,6 +56,8 @@ const UserManagement = () => {
           });
           throw authError;
         }
+
+        const authUsers = authData?.users as AuthUser[] || [];
 
         // Then get all profiles
         const { data: profiles, error: profilesError } = await supabase
@@ -73,7 +76,7 @@ const UserManagement = () => {
 
         // Create missing profiles for users that don't have one
         const existingProfileIds = new Set(profiles?.map(p => p.id) || []);
-        const missingProfiles = authUsers?.users?.filter(user => !existingProfileIds.has(user.id)) || [];
+        const missingProfiles = authUsers.filter(user => !existingProfileIds.has(user.id));
 
         for (const user of missingProfiles) {
           const { error: createError } = await supabase
@@ -82,7 +85,9 @@ const UserManagement = () => {
               id: user.id,
               username: user.email?.split('@')[0] || null,
               is_admin: false
-            });
+            })
+            .select()
+            .maybeSingle();
 
           if (createError) {
             console.error("Error creating profile for user:", user.id, createError);
@@ -96,7 +101,7 @@ const UserManagement = () => {
           .order("created_at", { ascending: false });
 
         const transformedData = (updatedProfiles || []).map((profile) => {
-          const authUser = authUsers?.users?.find((user) => user.id === profile.id);
+          const authUser = authUsers.find((user) => user.id === profile.id);
           return {
             ...profile,
             email: authUser?.email || null,
@@ -117,7 +122,9 @@ const UserManagement = () => {
         const { error } = await supabase
           .from('profiles')
           .update({ is_admin: isAdmin })
-          .eq('id', userId);
+          .eq('id', userId)
+          .select()
+          .maybeSingle();
 
         if (error) throw error;
       } catch (error: any) {
@@ -147,7 +154,9 @@ const UserManagement = () => {
         const { error } = await supabase
           .from("profiles")
           .delete()
-          .eq("id", userId);
+          .eq("id", userId)
+          .select()
+          .maybeSingle();
 
         if (error) throw error;
       } catch (error: any) {
