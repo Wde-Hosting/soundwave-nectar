@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2, Search, UserX, Shield, ShieldOff } from "lucide-react";
-import { AdminUserList } from "@supabase/auth-helpers-shared";
 
 interface DatabaseProfile {
   id: string;
@@ -29,6 +28,11 @@ interface DatabaseProfile {
   is_admin: boolean | null;
   created_at: string;
   avatar_url: string | null;
+  email?: string | null;
+}
+
+interface AuthUser {
+  id: string;
   email?: string | null;
 }
 
@@ -64,7 +68,7 @@ const UserManagement = () => {
       
       // Combine profile data with auth user emails
       const transformedData = profiles.map((profile) => {
-        const authUser = authUsers?.users?.find(user => user.id === profile.id);
+        const authUser = authUsers?.users?.find((user: AuthUser) => user.id === profile.id);
         return {
           ...profile,
           email: authUser?.email || null,
