@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_personalities: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          language: string | null
+          name: string
+          personality_prompt: string
+          user_id: string | null
+          voice_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          language?: string | null
+          name: string
+          personality_prompt: string
+          user_id?: string | null
+          voice_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          language?: string | null
+          name?: string
+          personality_prompt?: string
+          user_id?: string | null
+          voice_id?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           content: string
@@ -68,6 +101,44 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      broadcast_settings: {
+        Row: {
+          created_at: string
+          current_dj: string | null
+          id: string
+          news_enabled: boolean | null
+          station_name: string
+          updated_at: string
+          weather_enabled: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          current_dj?: string | null
+          id?: string
+          news_enabled?: boolean | null
+          station_name: string
+          updated_at?: string
+          weather_enabled?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          current_dj?: string | null
+          id?: string
+          news_enabled?: boolean | null
+          station_name?: string
+          updated_at?: string
+          weather_enabled?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcast_settings_current_dj_fkey"
+            columns: ["current_dj"]
+            isOneToOne: false
+            referencedRelation: "ai_personalities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       events: {
         Row: {
@@ -183,6 +254,33 @@ export type Database = {
           url?: string | null
           user_id?: string | null
           year?: number | null
+        }
+        Relationships: []
+      }
+      stream_analytics: {
+        Row: {
+          created_at: string
+          id: string
+          listener_count: number | null
+          peak_listeners: number | null
+          session_id: string
+          total_duration: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listener_count?: number | null
+          peak_listeners?: number | null
+          session_id: string
+          total_duration?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listener_count?: number | null
+          peak_listeners?: number | null
+          session_id?: string
+          total_duration?: number | null
         }
         Relationships: []
       }

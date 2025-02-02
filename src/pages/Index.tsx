@@ -11,16 +11,18 @@ import TestimonialSection from "@/components/home/TestimonialSection";
 import StatsSection from "@/components/home/StatsSection";
 import FeaturedEvents from "@/components/home/FeaturedEvents";
 import WelcomeSection from "@/components/home/WelcomeSection";
+import AIPersonalityList from "@/components/ai/AIPersonalityList";
+import { useAdmin } from "@/contexts/AdminContext";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { isAdmin } = useAdmin();
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
-        // Fetch the user's profile data
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -73,6 +75,12 @@ const Index = () => {
     <div className="min-h-screen">
       <HeroSection user={user} onSearch={setSearchQuery} />
       <WelcomeSection />
+      {isAdmin && (
+        <div className="container mx-auto px-4 py-8">
+          <h2 className="text-2xl font-bold mb-6">AI Personalities</h2>
+          <AIPersonalityList />
+        </div>
+      )}
       <StatsSection />
       <ServicesSection />
       <FeaturedEvents />
