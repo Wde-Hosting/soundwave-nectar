@@ -43,52 +43,79 @@ const UserManagement = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select(`
-          id,
-          username,
-          is_admin,
-          created_at,
-          avatar_url
-        `)
-        .order("created_at", { ascending: false });
+      try {
+        const { data: profiles, error: profilesError } = await supabase
+          .from("profiles")
+          .select(`
+            id,
+            username,
+            is_admin,
+            created_at,
+            avatar_url
+          `)
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        toast({
-          title: "Error fetching users",
-          description: error.message,
-          variant: "destructive",
+        if (profilesError) {
+          toast({
+            title: "Error fetching profiles",
+            description: profilesError.message,
+            variant: "destructive",
+          });
+          throw profilesError;
+        }
+
+        if (!profiles) {
+          return [];
+        }
+
+        // Get emails from auth.users table
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          toast({
+            title: "Error fetching user emails",
+            description: authError.message,
+            variant: "destructive",
+          });
+          throw authError;
+        }
+
+        // Combine profile data with auth user emails
+        const transformedData = profiles.map((profile) => {
+          const authUser = authUsers?.users?.find((user: AuthUser) => user.id === profile.id);
+          return {
+            ...profile,
+            email: authUser?.email || null,
+          };
         });
+
+        return transformedData as DatabaseProfile[];
+      } catch (error: any) {
+        console.error("Error in users query:", error);
         throw error;
       }
-
-      // Get emails from auth.users table
-      const { data: authUsers } = await supabase.auth.admin.listUsers();
-      
-      // Combine profile data with auth user emails
-      const transformedData = profiles.map((profile) => {
-        const authUser = authUsers?.users?.find((user: AuthUser) => user.id === profile.id);
-        return {
-          ...profile,
-          email: authUser?.email || null,
-        };
-      });
-
-      return transformedData as DatabaseProfile[];
     },
   });
 
   const toggleAdminMutation = useMutation<void, Error, { userId: string; isAdmin: boolean }>({
     mutationFn: async ({ userId, isAdmin }) => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({ is_admin: isAdmin })
-        .eq('id', userId)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .update({ is_admin: isAdmin })
+          .eq('id', userId)
+          .select()
+          .maybeSingle();
 
-      if (error) throw error;
-      if (!data) throw new Error("Profile not found");
+        if (error) throw error;
+        
+        if (!data) {
+          throw new Error(`No profile found for user ID: ${userId}`);
+        }
+      } catch (error: any) {
+        console.error("Error in toggle admin mutation:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -108,14 +135,23 @@ const UserManagement = () => {
 
   const deleteUserMutation = useMutation<void, Error, string>({
     mutationFn: async (userId: string) => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", userId)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .delete()
+          .eq("id", userId)
+          .select()
+          .maybeSingle();
 
-      if (error) throw error;
-      if (!data) throw new Error("Profile not found");
+        if (error) throw error;
+        
+        if (!data) {
+          throw new Error(`No profile found for user ID: ${userId}`);
+        }
+      } catch (error: any) {
+        console.error("Error in delete user mutation:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
