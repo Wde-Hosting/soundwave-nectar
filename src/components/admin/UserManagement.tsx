@@ -81,12 +81,14 @@ const UserManagement = () => {
 
   const toggleAdminMutation = useMutation<void, Error, { userId: string; isAdmin: boolean }>({
     mutationFn: async ({ userId, isAdmin }) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .update({ is_admin: isAdmin })
-        .eq('id', userId);
+        .eq('id', userId)
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error("Profile not found");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -106,12 +108,14 @@ const UserManagement = () => {
 
   const deleteUserMutation = useMutation<void, Error, string>({
     mutationFn: async (userId: string) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .delete()
-        .eq("id", userId);
+        .eq("id", userId)
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error("Profile not found");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
