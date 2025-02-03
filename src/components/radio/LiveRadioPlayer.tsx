@@ -20,7 +20,7 @@ export function LiveRadioPlayer() {
 
   return (
     <Card className={cn(
-      "fixed bottom-4 right-4 p-4 shadow-lg transition-all duration-300",
+      "fixed bottom-4 right-4 p-4 shadow-lg transition-all duration-300 glass-panel",
       isMinimized ? "w-16 h-16" : "w-80"
     )}>
       <audio ref={audioRef} />

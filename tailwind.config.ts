@@ -25,20 +25,16 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#FF4F1F",
+          DEFAULT: "#9b87f5",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#8B4513",
-          foreground: "#FFFFFF",
-        },
-        success: {
-          DEFAULT: "#22c55e",
+          DEFAULT: "#7E69AB",
           foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#FFD700",
-          foreground: "#000000",
+          DEFAULT: "#1EAEDB",
+          foreground: "#FFFFFF",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -71,15 +67,32 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "waveform": {
+          "0%": { transform: "scaleY(1)" },
+          "50%": { transform: "scaleY(0.5)" },
+          "100%": { transform: "scaleY(1)" },
+        },
+        "fade-in": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "float": "float 3s ease-in-out infinite",
+        "waveform": "waveform 1.5s ease-in-out infinite",
+        "fade-in": "fade-in 0.3s ease-out",
+      },
+      backgroundImage: {
+        'gradient-radio': 'linear-gradient(to right, #9b87f5, #1EAEDB)',
+      },
+      backdropFilter: {
+        'glass': 'blur(16px) saturate(180%)',
       },
     },
   },
