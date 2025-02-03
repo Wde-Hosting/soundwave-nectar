@@ -22,7 +22,44 @@ export function LiveRadioPlayer() {
     handleVolumeChange
   } = useAudioPlayer({ 
     url: "https://stream.soundmaster.com/live",
-    onPlay: () => startWaveformAnimation()
+    onPlay: () => {
+      // Start waveform animation when audio starts playing
+      if (isPlaying) {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        
+        const animate = () => {
+          if (!isPlaying) return;
+          
+          const newData = Array.from({ length: 50 }, () => Math.random() * 0.5 + 0.2);
+          setWaveformData(newData);
+          
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.beginPath();
+          ctx.strokeStyle = '#22c55e';
+          ctx.lineWidth = 2;
+          
+          newData.forEach((value, index) => {
+            const x = (canvas.width / newData.length) * index;
+            const y = (canvas.height / 2) * value;
+            
+            if (index === 0) {
+              ctx.moveTo(x, canvas.height / 2 - y);
+            } else {
+              ctx.lineTo(x, canvas.height / 2 - y);
+            }
+          });
+          
+          ctx.stroke();
+          requestAnimationFrame(animate);
+        };
+        
+        animate();
+      }
+    }
   });
 
   // Waveform animation
@@ -33,24 +70,13 @@ export function LiveRadioPlayer() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const generateRandomWaveform = () => {
-      const data = [];
-      for (let i = 0; i < 50; i++) {
-        data.push(Math.random() * 0.5 + 0.2);
-      }
-      return data;
-    };
-
     const animate = () => {
       if (!isPlaying) return;
       
-      const newData = generateRandomWaveform();
+      const newData = Array.from({ length: 50 }, () => Math.random() * 0.5 + 0.2);
       setWaveformData(newData);
       
-      // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw waveform
       ctx.beginPath();
       ctx.strokeStyle = '#22c55e';
       ctx.lineWidth = 2;
@@ -67,12 +93,15 @@ export function LiveRadioPlayer() {
       });
       
       ctx.stroke();
-      
       requestAnimationFrame(animate);
     };
 
     animate();
   }, [isPlaying]);
+
+  const handleVolumeSliderChange = (value: number[]) => {
+    handleVolumeChange(value[0]);
+  };
 
   return (
     <Card className={cn(
@@ -137,7 +166,7 @@ export function LiveRadioPlayer() {
                       value={[isMuted ? 0 : volume]}
                       max={1}
                       step={0.1}
-                      onValueChange={(value) => handleVolumeChange(value[0])}
+                      onValueChange={handleVolumeSliderChange}
                       className="w-24"
                     />
                   </div>

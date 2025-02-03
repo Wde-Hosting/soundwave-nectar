@@ -57,6 +57,14 @@ const MusicPlayer = () => {
     setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
   };
 
+  const handleTrackTimeChange = (value: number[]) => {
+    handleTimeChange(value[0]);
+  };
+
+  const handleTrackVolumeChange = (value: number[]) => {
+    handleVolumeChange(value[0]);
+  };
+
   return (
     <Card className="fixed bottom-4 right-4 w-96 shadow-lg">
       <CardContent className="p-4">
@@ -71,7 +79,7 @@ const MusicPlayer = () => {
           <TrackProgress
             currentTime={currentTime}
             duration={duration}
-            onTimeChange={handleTimeChange}
+            onTimeChange={handleTrackTimeChange}
           />
 
           <PlaybackControls
@@ -84,7 +92,7 @@ const MusicPlayer = () => {
           <VolumeControls
             volume={volume}
             isMuted={isMuted}
-            onVolumeChange={handleVolumeChange}
+            onVolumeChange={handleTrackVolumeChange}
             onMuteToggle={toggleMute}
           />
         </div>
