@@ -4,9 +4,10 @@ import { toast } from "@/components/ui/use-toast";
 interface UseAudioPlayerProps {
   url?: string;
   onTrackEnd?: () => void;
+  onPlay?: () => void;
 }
 
-export const useAudioPlayer = ({ url, onTrackEnd }: UseAudioPlayerProps) => {
+export const useAudioPlayer = ({ url, onTrackEnd, onPlay }: UseAudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -28,33 +29,38 @@ export const useAudioPlayer = ({ url, onTrackEnd }: UseAudioPlayerProps) => {
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleTrackEnd);
+    audio.addEventListener('play', () => onPlay?.());
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleTrackEnd);
+      audio.removeEventListener('play', () => onPlay?.());
     };
-  }, [onTrackEnd]);
+  }, [onTrackEnd, onPlay]);
 
   useEffect(() => {
-    // Reset playing state when URL changes
     setIsPlaying(false);
   }, [url]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch(() => {
-          toast({
-            title: "Playback Error",
-            description: "Unable to play the selected track. Please try again.",
-            variant: "destructive",
-          });
+      try {
+        if (isPlaying) {
+          await audioRef.current.pause();
+        } else {
+          await audioRef.current.play();
+          onPlay?.();
+        }
+        setIsPlaying(!isPlaying);
+      } catch (error) {
+        console.error('Playback error:', error);
+        toast({
+          title: "Playback Error",
+          description: "Unable to play the stream. Please try again.",
+          variant: "destructive",
         });
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -65,19 +71,17 @@ export const useAudioPlayer = ({ url, onTrackEnd }: UseAudioPlayerProps) => {
     }
   };
 
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
+  const handleVolumeChange = (newVolume: number) => {
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
       setVolume(newVolume);
     }
   };
 
-  const handleTimeChange = (value: number[]) => {
-    const newTime = value[0];
+  const handleTimeChange = (value: number) => {
     if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
+      audioRef.current.currentTime = value;
+      setCurrentTime(value);
     }
   };
 
