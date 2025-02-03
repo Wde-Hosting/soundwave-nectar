@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { WaveformVisualizer } from "./WaveformVisualizer";
 import { RadioControls } from "./RadioControls";
+import SessionTracker from "../analytics/SessionTracker";
 
 export function LiveRadioPlayer() {
   const [isMinimized, setIsMinimized] = useState(false);
@@ -61,6 +62,7 @@ export function LiveRadioPlayer() {
         </AnimatePresence>
       </motion.div>
       <audio ref={audioRef} />
+      {isPlaying && <SessionTracker />}
     </Card>
   );
 }

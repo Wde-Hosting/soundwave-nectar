@@ -6,6 +6,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import UserManagement from "@/components/admin/UserManagement";
 import LiveLessonSettings from "@/components/admin/LiveLessonSettings";
 import DesignCustomizer from "@/components/design/DesignCustomizer";
+import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
@@ -48,12 +49,16 @@ const Admin = () => {
   return (
     <div className="container py-8">
       <AdminHeader />
-      <Tabs defaultValue="users" className="mt-6">
+      <Tabs defaultValue="analytics" className="mt-6">
         <TabsList>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="lessons">Live Lessons</TabsTrigger>
           <TabsTrigger value="design">Design</TabsTrigger>
         </TabsList>
+        <TabsContent value="analytics">
+          <AnalyticsDashboard />
+        </TabsContent>
         <TabsContent value="users">
           <UserManagement />
         </TabsContent>
@@ -66,6 +71,6 @@ const Admin = () => {
       </Tabs>
     </div>
   );
-}
+};
 
 export default Admin;
