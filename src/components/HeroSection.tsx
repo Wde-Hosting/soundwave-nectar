@@ -66,7 +66,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="mb-4 text-lg md:text-xl animate-fade-in"
+            className="mb-4 text-lg md:text-xl animate-fade-in glass-panel rounded-lg py-2 px-4 inline-block"
           >
             Welcome back, {user.email}!
           </motion.div>
@@ -75,7 +75,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in"
+          className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in text-gradient"
         >
           Soundwave Nectar Radio
         </motion.h1>
@@ -125,7 +125,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2 + index * 0.2 }}
-              className="group relative overflow-hidden rounded-lg aspect-square"
+              className="group relative overflow-hidden rounded-lg aspect-square glass-panel hover:scale-105 transition-transform duration-300"
             >
               <img 
                 src={feature.image}
@@ -134,7 +134,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
               />
               <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors">
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
-                  <div className="p-3 rounded-full bg-primary/20 mb-4">
+                  <div className="p-3 rounded-full bg-primary/20 mb-4 animate-float">
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
@@ -153,11 +153,13 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
         >
           <Link to="/live-radio">
             <Button size="lg" className="hover:scale-105 transition-transform">
+              <Headphones className="mr-2 h-4 w-4" />
               Listen Now
             </Button>
           </Link>
           <Link to="/schedule">
             <Button size="lg" variant="secondary" className="hover:scale-105 transition-transform">
+              <Calendar className="mr-2 h-4 w-4" />
               View Schedule
             </Button>
           </Link>
