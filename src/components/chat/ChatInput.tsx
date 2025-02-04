@@ -17,7 +17,7 @@ const ChatInput = ({ message, isLoading, onMessageChange, onSendMessage }: ChatI
           value={message}
           onChange={(e) => onMessageChange(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && !isLoading && onSendMessage()}
-          placeholder="Type your message..."
+          placeholder="Ask the Lion DJ anything..."
           disabled={isLoading}
           className="dark:bg-gray-700"
         />

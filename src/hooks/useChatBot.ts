@@ -57,35 +57,36 @@ export const useChatBot = () => {
       const { data: settings } = await supabase
         .from('settings')
         .select('value')
-        .eq('key', 'OPENROUTER_API_KEY')
+        .eq('key', 'OPENAI_API_KEY')
         .maybeSingle();
 
       if (!settings?.value) {
         throw new Error('API key not configured');
       }
 
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${settings.value}`,
-          'HTTP-Referer': window.location.origin,
         },
         body: JSON.stringify({
-          model: 'mistralai/mistral-7b-instruct',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: "system",
-              content: `You are a DJ assistant. Keep responses under 20 words. Be direct and helpful. Focus on:
-              - Quick song suggestions
-              - Brief booking help
-              - Short music tips
-              Always be concise and practical.`
+              content: `You are a friendly DJ assistant with the personality of a wise lion. 
+              Your responses should be energetic and include lion-themed metaphors when appropriate.
+              Keep responses under 50 words. Focus on:
+              - Music recommendations with roaring enthusiasm
+              - Event booking with pride
+              - Technical support with lion's courage
+              Always be helpful and maintain your lion personality!`
             },
             { role: "user", content: message }
           ],
           temperature: 0.7,
-          max_tokens: 100, // Reduced for shorter responses
+          max_tokens: 150,
         })
       });
 
@@ -104,7 +105,7 @@ export const useChatBot = () => {
           .from('songs')
           .select('*')
           .textSearch('title', message)
-          .limit(3); // Limit to top 3 matches
+          .limit(3);
 
         if (songs && songs.length > 0) {
           const songList = songs
@@ -112,7 +113,7 @@ export const useChatBot = () => {
             .join('\n');
           setMessages(prev => [...prev, { 
             type: 'bot', 
-            content: `${botResponse}\n\nFound these songs:\n${songList}`
+            content: `${botResponse}\n\nROAR! Here are some tracks from my pride:\n${songList}`
           }]);
         } else {
           setMessages(prev => [...prev, { type: 'bot', content: botResponse }]);
@@ -126,7 +127,7 @@ export const useChatBot = () => {
       console.error('Chat error:', error);
       toast({
         title: "Error",
-        description: "Chat service unavailable",
+        description: "The lion's connection to the pride is temporarily down. Please try again later! 🦁",
         variant: "destructive",
       });
     } finally {
