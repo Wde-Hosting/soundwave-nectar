@@ -77,7 +77,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
           transition={{ delay: 0.4 }}
           className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in"
         >
-          Professional Sound Services
+          Soundwave Nectar Radio
         </motion.h1>
         <motion.p 
           initial={{ y: 20, opacity: 0 }}
@@ -85,7 +85,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
           transition={{ delay: 0.6 }}
           className="text-lg md:text-xl lg:text-2xl mb-8 opacity-90"
         >
-          Bringing Quality Sound to Tzaneen & Limpopo Since 2022
+          Experience the Future of Digital Sound
         </motion.p>
         
         <motion.div 
@@ -96,7 +96,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
         >
           <div className="flex gap-2">
             <Input
-              placeholder="Search for services or songs..."
+              placeholder="Search for your favorite tracks..."
               className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -151,14 +151,14 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
           transition={{ delay: 1.8 }}
           className="flex justify-center gap-4"
         >
-          <Link to="/services">
+          <Link to="/live-radio">
             <Button size="lg" className="hover:scale-105 transition-transform">
-              View Services
+              Listen Now
             </Button>
           </Link>
-          <Link to="/contact">
+          <Link to="/schedule">
             <Button size="lg" variant="secondary" className="hover:scale-105 transition-transform">
-              Contact Us
+              View Schedule
             </Button>
           </Link>
         </motion.div>
