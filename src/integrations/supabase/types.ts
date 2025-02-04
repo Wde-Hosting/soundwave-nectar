@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_content_logs: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          id: string
+          is_flagged: boolean | null
+          sentiment_score: number | null
+          station_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          content_type: string
+          created_at?: string
+          id?: string
+          is_flagged?: boolean | null
+          sentiment_score?: number | null
+          station_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_flagged?: boolean | null
+          sentiment_score?: number | null
+          station_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_content_logs_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "radio_stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_personalities: {
         Row: {
           created_at: string
@@ -197,6 +238,51 @@ export type Database = {
         }
         Relationships: []
       }
+      radio_stations: {
+        Row: {
+          created_at: string
+          description: string | null
+          genre: string | null
+          id: string
+          is_active: boolean | null
+          listeners_count: number | null
+          logo_url: string | null
+          name: string
+          peak_listeners: number | null
+          stream_url: string
+          total_listening_time: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          genre?: string | null
+          id?: string
+          is_active?: boolean | null
+          listeners_count?: number | null
+          logo_url?: string | null
+          name: string
+          peak_listeners?: number | null
+          stream_url: string
+          total_listening_time?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          genre?: string | null
+          id?: string
+          is_active?: boolean | null
+          listeners_count?: number | null
+          logo_url?: string | null
+          name?: string
+          peak_listeners?: number | null
+          stream_url?: string
+          total_listening_time?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       settings: {
         Row: {
           created_at: string
@@ -256,6 +342,41 @@ export type Database = {
           year?: number | null
         }
         Relationships: []
+      }
+      station_analytics: {
+        Row: {
+          avg_listening_time: number | null
+          id: string
+          listeners_count: number | null
+          station_id: string
+          timestamp: string
+          unique_listeners: number | null
+        }
+        Insert: {
+          avg_listening_time?: number | null
+          id?: string
+          listeners_count?: number | null
+          station_id: string
+          timestamp?: string
+          unique_listeners?: number | null
+        }
+        Update: {
+          avg_listening_time?: number | null
+          id?: string
+          listeners_count?: number | null
+          station_id?: string
+          timestamp?: string
+          unique_listeners?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "station_analytics_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "radio_stations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stream_analytics: {
         Row: {
