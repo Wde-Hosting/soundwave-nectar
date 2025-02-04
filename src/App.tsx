@@ -9,6 +9,7 @@ import AuthStateManager from "./components/auth/AuthStateManager";
 import AppRoutes from "./components/routing/AppRoutes";
 import ChatBot from "./components/ChatBot";
 import { AdminProvider } from "./contexts/AdminContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,9 +38,17 @@ const App = () => {
               <AuthStateManager queryClient={queryClient} />
               <div className="min-h-screen bg-background">
                 <Navbar />
-                <main className="pt-16">
-                  <AppRoutes />
-                </main>
+                <AnimatePresence mode="wait">
+                  <motion.main
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="pt-16"
+                  >
+                    <AppRoutes />
+                  </motion.main>
+                </AnimatePresence>
                 <div className="fixed bottom-4 right-4 z-50">
                   <ChatBot />
                 </div>

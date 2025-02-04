@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Music, Calendar, Users } from "lucide-react";
+import { Search, Music, Calendar, Users, Radio, Headphones } from "lucide-react";
 import { useState } from "react";
 import { User } from "@/types/user";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface HeroSectionProps {
   user: User | null;
@@ -25,7 +26,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
 
   const features = [
     {
-      icon: <Music className="h-6 w-6" />,
+      icon: <Radio className="h-6 w-6" />,
       title: "Professional Sound",
       description: "High-quality audio equipment",
       image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745"
@@ -46,7 +47,10 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
 
   return (
     <div className="relative min-h-[90vh] flex items-center justify-center text-white">
-      <div 
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
         className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/60"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745')",
@@ -58,18 +62,38 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
       />
       <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
         {user && (
-          <div className="mb-4 text-lg md:text-xl animate-fade-in">
+          <motion.div 
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="mb-4 text-lg md:text-xl animate-fade-in"
+          >
             Welcome back, {user.email}!
-          </div>
+          </motion.div>
         )}
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
+        <motion.h1 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in"
+        >
           Professional Sound Services
-        </h1>
-        <p className="text-lg md:text-xl lg:text-2xl mb-8 opacity-90">
+        </motion.h1>
+        <motion.p 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="text-lg md:text-xl lg:text-2xl mb-8 opacity-90"
+        >
           Bringing Quality Sound to Tzaneen & Limpopo Since 2022
-        </p>
+        </motion.p>
         
-        <div className="max-w-md mx-auto mb-12">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="max-w-md mx-auto mb-12"
+        >
           <div className="flex gap-2">
             <Input
               placeholder="Search for services or songs..."
@@ -87,12 +111,20 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
               <Search className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+        >
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={feature.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 + index * 0.2 }}
               className="group relative overflow-hidden rounded-lg aspect-square"
             >
               <img 
@@ -109,11 +141,16 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
                   <p className="text-gray-300">{feature.description}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="flex justify-center gap-4">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1.8 }}
+          className="flex justify-center gap-4"
+        >
           <Link to="/services">
             <Button size="lg" className="hover:scale-105 transition-transform">
               View Services
@@ -124,7 +161,7 @@ const HeroSection = ({ user, onSearch }: HeroSectionProps) => {
               Contact Us
             </Button>
           </Link>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
