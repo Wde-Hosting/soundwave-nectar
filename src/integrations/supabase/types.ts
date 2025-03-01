@@ -214,6 +214,33 @@ export type Database = {
         }
         Relationships: []
       }
+      playlists: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -235,6 +262,48 @@ export type Database = {
           id?: string
           is_admin?: boolean | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      radio_shows: {
+        Row: {
+          created_at: string
+          day: number
+          description: string | null
+          dj: string
+          end_time: string
+          genre: string | null
+          id: string
+          is_recurring: boolean | null
+          start_time: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          description?: string | null
+          dj: string
+          end_time: string
+          genre?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          start_time: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          description?: string | null
+          dj?: string
+          end_time?: string
+          genre?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          start_time?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -377,6 +446,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stations: {
+        Row: {
+          created_at: string
+          current_listeners: number | null
+          description: string | null
+          id: string
+          is_live: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_listeners?: number | null
+          description?: string | null
+          id?: string
+          is_live?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_listeners?: number | null
+          description?: string | null
+          id?: string
+          is_live?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       stream_analytics: {
         Row: {
