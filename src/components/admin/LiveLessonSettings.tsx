@@ -1,13 +1,12 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Database } from "@/integrations/supabase/types";
-
-type Settings = Database['public']['Tables']['settings']['Insert'];
+import type { Setting } from "@/types/database.types";
 
 interface LiveLessonSettingsProps {
   initialUrl?: string;
@@ -19,11 +18,9 @@ const LiveLessonSettings = ({ initialUrl = "" }: LiveLessonSettingsProps) => {
 
   const handleIframeUpdate = async () => {
     try {
-      const settingsData: Settings = {
+      const settingsData: Omit<Setting, 'created_at' | 'updated_at'> = {
         key: 'live_lesson_url',
         value: iframeUrl,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase
